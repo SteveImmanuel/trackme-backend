@@ -3,7 +3,7 @@ from pymongo.database import Database
 
 class Users:
     collection_name = 'users'
-    indexes = ['username']
+    indexes = ['username', 'alias']
 
     def __init__(self, db: Database) -> None:
         self.collection = db.get_collection(self.collection_name)
