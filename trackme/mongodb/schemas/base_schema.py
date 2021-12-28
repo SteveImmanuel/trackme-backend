@@ -8,11 +8,7 @@ class BaseSchema(ABC):
     def to_dict(self) -> Dict:
         raise NotImplementedError
 
-    @abstractmethod
     @staticmethod
-    def from_dict(data) -> 'BaseSchema':
-        raise NotImplementedError
-
     @abstractmethod
-    def validate_params(self, data: Dict) -> bool:
+    def from_dict(data) -> 'BaseSchema':
         raise NotImplementedError
