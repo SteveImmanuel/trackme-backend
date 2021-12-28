@@ -2,9 +2,10 @@ from pymongo.database import Database
 from trackme.helper.validation import *
 from trackme.exceptions.validation_exception import ValidationException
 from typing import Dict
+from trackme.mongodb.collections.base_collection import BaseCollection
 
 
-class Users:
+class Users(BaseCollection):
     collection_name = 'users'
     # if item is a tuple, treat it as unique index
     indexes = [('username', ), 'alias', 'bot_channels']
@@ -18,14 +19,7 @@ class Users:
     }
 
     def __init__(self, db: Database) -> None:
-        self.collection = db.get_collection(self.collection_name)
-
-    def find_one(self, query: dict) -> dict:
-        return self.collection.find_one(query)
-
-    def create_one(self, params: dict) -> str:
-        result = self.collection.insert_one(params)
-        return str(result.inserted_id)
+        super().__init__(db, self.collection_name)
 
     @classmethod
     def validate_create(cls, data: Dict) -> Dict:

@@ -1,12 +1,10 @@
 from pymongo.database import Database
+from trackme.mongodb.collections.base_collection import BaseCollection
 
 
-class RefreshTokens:
+class RefreshTokens(BaseCollection):
     collection_name = 'refresh_tokens'
     indexes = ['hash']
 
     def __init__(self, db: Database) -> None:
-        self.collection = db.get_collection(self.collection_name)
-
-    def findOne(self, query: dict) -> dict:
-        return self.collection.find_one(query)
+        super().__init__(db, self.collection_name)
