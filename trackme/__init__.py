@@ -1,9 +1,10 @@
 from flask import Flask
-from trackme.api import api_bp
+import trackme.blueprints as blueprints
 
 
 def create_app():
     app = Flask(__name__)
-    app.register_blueprint(api_bp)
+    for bp in blueprints.bp_list:
+        app.register_blueprint(bp)
 
     return app
