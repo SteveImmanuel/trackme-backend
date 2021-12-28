@@ -1,6 +1,5 @@
 from typing import List, Dict
 from trackme.mongodb.schemas.base_schema import BaseSchema
-from trackme.helper.validation import *
 
 
 class User(BaseSchema):
@@ -20,13 +19,6 @@ class User(BaseSchema):
         self.alias = alias
         self.locations = locations
         self.bot_channels = bot_channels
-        self.validation = {
-            'username': (is_string, True),
-            'password': (is_password_valid, True),
-            'alias': (is_list_of_string, False),
-            'locations': (is_location_valid, False),
-            'bot_channels': (is_list_of_string, False),
-        }
 
     def to_dict(self) -> Dict:
         return {
@@ -43,37 +35,8 @@ class User(BaseSchema):
         return User(
             data['username'],
             data['password'],
-            data['_uid'],
+            data['_id'],
             data['alias'],
             data['locations'],
             data['bot_channels'],
         )
-
-    def validate_create(self, data: Dict) -> Dict:
-        result = {}
-
-        for property, (validator, is_required) in self.validation.items():
-            if property not in data:
-                if is_required:
-                    raise ValidationException(f'Key "{property}" is required')
-            else:
-                try:
-                    validator(data[property])
-                    result[property] = data[property]
-                except ValidationException as e:
-                    raise ValidationException(f'Error on key "{property}: {e}')
-
-        return result
-
-    def validate_update(self, data: Dict) -> Dict:
-        result = {}
-
-        for property, (validator, _) in self.validation.items():
-            if property in data:
-                try:
-                    validator(data[property])
-                    result[property] = data[property]
-                except ValidationException as e:
-                    raise ValidationException(f'Error on key "{property}: {e}')
-
-        return result
