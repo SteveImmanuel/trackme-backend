@@ -2,24 +2,22 @@ import jwt
 import datetime
 import os
 
-from trackme.mongodb.schemas.user import User
 from enum import Enum
 from typing import Dict
 
 jwt_secret = os.getenv('JWT_SECRET')
-jwt_expiry_time = os.getenv('JWT_EXPIRY_TIME')
+jwt_expiry_time = int(os.getenv('JWT_EXPIRY_TIME'))
 refresh_token_expiry_time = datetime.timedelta(days=30)
 
 class TokenType(Enum):
     ACCESS = 'access'
     REFRESH = 'refresh'
 
-def generate_token(user: User, type: TokenType) -> str:
+def generate_token(uid: str, type: TokenType) -> str:
     data = {
-        'uid': user.uid,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=1),
+        'uid': uid,
         'iat': datetime.datetime.utcnow(),
-        'type': type
+        'type': type.value
     }
 
     if type == TokenType.ACCESS:
