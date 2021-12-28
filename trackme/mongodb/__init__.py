@@ -1,3 +1,4 @@
+from enum import unique
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,4 +19,7 @@ db = client.trackme
 for collection_model in db_collections.models:
     collection = db.get_collection(collection_model.collection_name)
     for index in collection_model.indexes:
-        collection.create_index(index)
+        if isinstance(index, tuple):
+            collection.create_index(index[0], unique=True)
+        else:
+            collection.create_index(index)
