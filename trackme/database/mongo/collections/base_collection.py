@@ -1,5 +1,5 @@
 from pymongo.database import Database
-from typing import Dict
+from typing import Any, Dict
 from trackme.exceptions.validation_exception import ValidationException
 
 
@@ -22,11 +22,13 @@ class BaseCollection:
         return self.collection.update_one(filter, params).modified_count
 
     @classmethod
-    def base_validate(cls, validation: Dict, data: Dict) -> Dict:
+    def base_validate(cls, validation: Dict, data: Any) -> Dict:
         """
         validation is a dict where each item consists of 
         a tuple of validator function and is required flag
         """
+        if not isinstance(data, dict):
+            raise ValidationException('Request body must be a json object')
         result = {}
 
         for property, (validator, is_required) in validation.items():
