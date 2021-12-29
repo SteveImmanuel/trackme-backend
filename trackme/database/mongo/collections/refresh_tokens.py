@@ -1,5 +1,8 @@
 from pymongo.database import Database
 from trackme.database.mongo.collections.base_collection import BaseCollection
+from trackme.helper.validation import *
+from trackme.exceptions.validation_exception import ValidationException
+from typing import Dict
 
 
 class RefreshTokens(BaseCollection):
@@ -10,4 +13,9 @@ class RefreshTokens(BaseCollection):
     def __init__(self, db: Database) -> None:
         super().__init__(db, self.collection_name)
 
-    # no validation needed because it is not exposed to public
+    @classmethod
+    def validate_refresh(cls, data: Dict) -> Dict:
+        validation = {
+            'refresh_token': (is_string, True),
+        }
+        return cls.base_validate(validation, data)
