@@ -1,18 +1,13 @@
-from enum import unique
 from dotenv import load_dotenv
 
 load_dotenv()
 
-import os
 from pymongo import MongoClient
+from trackme.contants import *
 import trackme.database.mongo.collections as db_collections
 
 # initialize connection
-username = os.getenv('DB_USERNAME')
-password = os.getenv('DB_PASSWORD')
-host = os.getenv('DB_HOST')
-port = os.getenv('DB_PORT')
-client = MongoClient(f'mongodb://{username}:{password}@{host}:{port}')
+client = MongoClient(f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}')
 
 # initialize database
 db = client.trackme
