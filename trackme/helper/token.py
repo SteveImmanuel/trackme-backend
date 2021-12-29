@@ -1,13 +1,10 @@
 import jwt
 import datetime
-import os
+import hashlib
 
 from enum import Enum
 from typing import Dict
-
-jwt_secret = os.getenv('JWT_SECRET')
-jwt_expiry_time = int(os.getenv('JWT_EXPIRY_TIME'))
-refresh_token_expiry_time = datetime.timedelta(days=30)
+from trackme.contants import *
 
 class TokenType(Enum):
     ACCESS = 'access'
@@ -21,11 +18,14 @@ def generate_token(uid: str, type: TokenType) -> str:
     }
 
     if type == TokenType.ACCESS:
-        data['exp'] = datetime.datetime.utcnow() + datetime.timedelta(seconds=jwt_expiry_time)
+        data['exp'] = datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXPIRY_TIME)
     else:
-        data['exp'] = datetime.datetime.utcnow() + refresh_token_expiry_time
+        data['exp'] = datetime.datetime.utcnow() + datetime.timedelta(days=30)
 
-    return jwt.encode(data, jwt_secret, algorithm='HS256')
+    return jwt.encode(data, JWT_SECRET, algorithm='HS256')
 
 def verify_and_decode_token(token: str) -> Dict:
-    return jwt.decode(token, jwt_secret, algorithms=['HS256'])
+    return jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+
+def get_hash(token: str) -> str:
+    return hashlib.md5(token.encode('utf-8')).hexdigest()
