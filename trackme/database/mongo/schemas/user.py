@@ -1,5 +1,5 @@
 from typing import List, Dict
-from trackme.mongodb.schemas.base_schema import BaseSchema
+from trackme.database.mongo.schemas.base_schema import BaseSchema
 
 
 class User(BaseSchema):

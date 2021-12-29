@@ -1,5 +1,5 @@
 from typing import Dict
-from trackme.mongodb.schemas.base_schema import BaseSchema
+from trackme.database.mongo.schemas.base_schema import BaseSchema
 
 
 class RefreshToken(BaseSchema):

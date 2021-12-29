@@ -1,5 +1,5 @@
 from pymongo.database import Database
-from trackme.mongodb.collections.base_collection import BaseCollection
+from trackme.database.mongo.collections.base_collection import BaseCollection
 
 
 class RefreshTokens(BaseCollection):

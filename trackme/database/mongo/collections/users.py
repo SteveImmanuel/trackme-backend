@@ -2,7 +2,7 @@ from pymongo.database import Database
 from trackme.helper.validation import *
 from trackme.exceptions.validation_exception import ValidationException
 from typing import Dict
-from trackme.mongodb.collections.base_collection import BaseCollection
+from trackme.database.mongo.collections.base_collection import BaseCollection
 
 
 class Users(BaseCollection):

@@ -5,7 +5,7 @@ load_dotenv()
 
 import os
 from pymongo import MongoClient
-import trackme.mongodb.collections as db_collections
+import trackme.database.mongo.collections as db_collections
 
 # initialize connection
 username = os.getenv('DB_USERNAME')

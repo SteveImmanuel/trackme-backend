@@ -1,4 +1,4 @@
-import trackme.mongodb as mongodb
+import trackme.database.mongo as mongo
 import functools
 from pymongo.errors import DuplicateKeyError
 from jwt import ExpiredSignatureError, InvalidTokenError
@@ -6,11 +6,11 @@ from flask import Blueprint, g, request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from trackme.helper.token import *
-from trackme.mongodb.collections import Users
+from trackme.database.mongo.collections import Users
 from trackme.exceptions.validation_exception import ValidationException
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-db_connection = mongodb.db
+db_connection = mongo.db
 user_collection = Users(db_connection)
 
 
