@@ -13,3 +13,9 @@ class BaseCollection:
     def create_one(self, params: Dict) -> str:
         result = self.collection.insert_one(params)
         return str(result.inserted_id)
+
+    def delete_one(self, params: Dict) -> int:
+        return self.collection.delete_one(params).deleted_count
+
+    def update_one(self, filter: Dict, params: Dict) -> int:
+        return self.collection.update_one(filter, params).modified_count
