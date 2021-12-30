@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from typing import Tuple
 from trackme.helper.token import *
+from trackme.validation import *
 from trackme.database.mongo.collections import Users, RefreshTokens
 from trackme.exceptions.validation_exception import ValidationException
 from trackme.contants import *
@@ -52,7 +53,7 @@ def store_token(uid: str) -> Tuple[str, str]:
 @bp.route('/login', methods=['POST'])
 def login():
     try:
-        data = user_collection.validate_login(request.json)
+        data = LoginUser.validate(request.json)
         user = user_collection.find_one({'username': data['username']})
 
         if user is not None:
@@ -92,7 +93,7 @@ def login():
 @bp.route('/register', methods=['POST'])
 def register():
     try:
-        data = user_collection.validate_create(request.json)
+        data = CreateUser.validate(request.json)
         data['password'] = generate_password_hash(data['password'])
         user_collection.create_one(data)
         return make_response(jsonify({'code': 200, 'message': 'Register Successful'}), 200)
@@ -121,7 +122,7 @@ def register():
 @bp.route('/refresh', methods=['POST'])
 def refresh():
     try:
-        data = refresh_token_collection.validate_refresh(request.json)
+        data = RefreshJWTToken.validate(request.json)
         refresh_token = verify_and_decode_token(data['refresh_token'])
         if refresh_token['type'] != TokenType.REFRESH.value:
             raise InvalidTokenError()
@@ -228,12 +229,3 @@ def load_jwt():
                 'message': 'Bad Request',
                 'detail': 'Unsupported format of authorization header'
             }), 400)
-
-
-@bp.route('/test', methods=['GET'])
-@login_required
-def test():
-    id = request.args['id']
-    user = user_collection.find_one({'_id': ObjectId(id)})
-    print(user)
-    return make_response(jsonify({"message": "test successful", 'uid': None}), 200)
