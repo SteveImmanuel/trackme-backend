@@ -12,10 +12,3 @@ class RefreshTokens(BaseCollection):
 
     def __init__(self, db: Database) -> None:
         super().__init__(db, self.collection_name)
-
-    @classmethod
-    def validate_refresh(cls, data: Dict) -> Dict:
-        validation = {
-            'refresh_token': (is_string, True),
-        }
-        return cls.base_validate(validation, data)
