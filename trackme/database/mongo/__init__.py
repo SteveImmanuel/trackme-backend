@@ -7,7 +7,7 @@ from trackme.contants import *
 import trackme.database.mongo.collections as db_collections
 
 # initialize connection
-client = MongoClient(f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}')
+client = MongoClient(f'mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}')
 
 # initialize database
 db = client.trackme
