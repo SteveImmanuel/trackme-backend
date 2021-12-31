@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 
-class BaseSchema(ABC):
+class BaseModel(ABC):
 
     @abstractmethod
     def to_dict(self) -> Dict:
@@ -10,5 +10,5 @@ class BaseSchema(ABC):
 
     @staticmethod
     @abstractmethod
-    def from_dict(data) -> 'BaseSchema':
+    def from_dict(data) -> 'BaseModel':
         raise NotImplementedError

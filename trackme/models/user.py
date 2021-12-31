@@ -1,8 +1,8 @@
 from typing import List, Dict
-from trackme.database.mongo.schemas.base_schema import BaseSchema
+from trackme.models.base_model import BaseModel
 
 
-class User(BaseSchema):
+class User(BaseModel):
 
     def __init__(
         self,
@@ -33,10 +33,10 @@ class User(BaseSchema):
     @staticmethod
     def from_dict(data: Dict) -> 'User':
         return User(
-            data['username'],
-            data['password'],
-            data['_id'],
-            data['alias'],
-            data['locations'],
-            data['bot_channels'],
+            data.get('username'),
+            data.get('password'),
+            data.get('_id', None),
+            data.get('alias', None),
+            data.get('locations', None),
+            data.get('bot_channels', None),
         )

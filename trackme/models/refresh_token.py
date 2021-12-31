@@ -1,8 +1,8 @@
 from typing import Dict
-from trackme.database.mongo.schemas.base_schema import BaseSchema
+from trackme.models.base_model import BaseModel
 
 
-class RefreshToken(BaseSchema):
+class RefreshToken(BaseModel):
 
     def __init__(self, uid: str, hash_refresh: str, hash_access: str):
         self.uid = uid
@@ -18,4 +18,4 @@ class RefreshToken(BaseSchema):
 
     @staticmethod
     def from_dict(data: Dict) -> 'RefreshToken':
-        return RefreshToken(data['uid'], data['hash_refresh'], data['hash_access'])
+        return RefreshToken(data.get('uid'), data.get('hash_refresh'), data.get('hash_access'))
