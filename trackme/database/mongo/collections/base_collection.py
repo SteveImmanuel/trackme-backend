@@ -1,12 +1,11 @@
-from pymongo.database import Database
-from typing import Any, Dict
-from trackme.exceptions.validation_exception import ValidationException
+from typing import Dict
+import trackme.database.mongo as mongo_db
 
 
 class BaseCollection:
 
-    def __init__(self, db: Database, collection_name: str):
-        self.collection = db.get_collection(collection_name)
+    def __init__(self, collection_name: str):
+        self.collection = mongo_db.db.get_collection(collection_name)
 
     def find_one(self, query: Dict) -> Dict:
         return self.collection.find_one(query)

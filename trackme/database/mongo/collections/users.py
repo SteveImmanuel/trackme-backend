@@ -1,8 +1,6 @@
-from pymongo.database import Database
-from trackme.helper.validation import *
-from trackme.exceptions.validation_exception import ValidationException
 from typing import Dict
 from trackme.database.mongo.collections.base_collection import BaseCollection
+from trackme.models.user import User
 
 
 class Users(BaseCollection):
@@ -10,5 +8,11 @@ class Users(BaseCollection):
     # if item is a tuple, treat it as unique index
     indexes = [('username', ), 'alias', 'bot_channels']
 
-    def __init__(self, db: Database) -> None:
-        super().__init__(db, self.collection_name)
+    def __init__(self) -> None:
+        super().__init__(self.collection_name)
+
+    def find_one(self, query: Dict) -> User:
+        result = super().find_one(query)
+        if result is not None:
+            return User.from_dict(result)
+        return None

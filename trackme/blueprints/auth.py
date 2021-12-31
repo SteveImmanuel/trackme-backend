@@ -1,12 +1,10 @@
 import functools
-import trackme.database.mongo as mongo_db
-import trackme.database.redis as redis_db
+import trackme.database.redis as redis_repository
 
 from pymongo.errors import DuplicateKeyError
 from jwt import ExpiredSignatureError, InvalidTokenError
 from flask import Blueprint, g, request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
-from bson.objectid import ObjectId
 from typing import Tuple
 from trackme.helper.token import *
 from trackme.validation import *
@@ -15,8 +13,8 @@ from trackme.exceptions.validation_exception import ValidationException
 from trackme.contants import *
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-user_collection = Users(mongo_db.db)
-refresh_token_collection = RefreshTokens(mongo_db.db)
+user_collection = Users()
+refresh_token_collection = RefreshTokens()
 
 
 def login_required(function):
@@ -58,7 +56,7 @@ def login():
 
         if user is not None:
             if check_password_hash(user['password'], data['password']):
-                uid = str(user['_id'])
+                uid = str(user.uid)
                 access_token, refresh_token = store_token(uid)
 
                 return make_response(
@@ -129,7 +127,6 @@ def refresh():
 
         hash_token = get_hash(data['refresh_token'])
         token_data = refresh_token_collection.find_one({'hash_refresh': hash_token})
-        print(token_data)
         if token_data is None:
             raise InvalidTokenError()
 
@@ -179,7 +176,7 @@ def logout():
     try:
         # add hash value of access token to token blacklist in redis
         hash_token = get_hash(g.get('access_token', ''))
-        redis_db.set_key(hash_token, '1', JWT_EXPIRY_TIME)
+        redis_repository.set_key(hash_token, '1', JWT_EXPIRY_TIME)
 
         # delete refresh token in mongo
         refresh_token_collection.delete_one({'hash_access': hash_token})
@@ -200,7 +197,7 @@ def load_jwt():
         authorization_header = request.headers.get('Authorization', None)
         if authorization_header is not None:
             access_token = request.headers.get('Authorization').split(' ')[1]
-            is_revoked = redis_db.get_key(get_hash(access_token))
+            is_revoked = redis_repository.get_key(get_hash(access_token))
 
             if is_revoked is None:
                 decoded_token = verify_and_decode_token(access_token)
