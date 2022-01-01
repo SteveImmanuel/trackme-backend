@@ -1,6 +1,11 @@
-from flask import Blueprint, jsonify, make_response, request
-from linebot.exceptions import InvalidSignatureError
 import trackme.bot.line_bot as Bot
+import trackme.database.redis as redis_repository
+
+from flask import Blueprint, jsonify, make_response, request, g
+from linebot.exceptions import InvalidSignatureError
+from trackme.blueprints.auth import login_required
+from trackme.helper.token import generate_random_numeric_token
+from trackme.contants import *
 
 bp = Blueprint('bot', __name__, url_prefix='/bot')
 
@@ -21,6 +26,65 @@ def webhook():
                 'message': 'Bad Request',
                 'detail': 'Invalid signature. Recheck access token and channel secret'
             }), 400)
+    except Exception as e:
+        print(e)
+        return make_response(
+            jsonify({
+                'code': 500,
+                'message': 'Internal Server Error',
+                'detail': str(e)
+            }), 500)
+
+
+@bp.route('/token', methods=['POST'])
+@login_required
+def generate_token():
+    try:
+        uid = g.get('uid')
+        bot_token = generate_random_numeric_token(4)
+        print(bot_token)
+        redis_repository.set_key(f'bot_token_{uid}', bot_token, BOT_TOKEN_EXPIRY_TIME)
+        return make_response(
+            jsonify({
+                'code': 200,
+                'message': 'Generate Bot Token Successful',
+                'detail': {
+                    'token': bot_token
+                }
+            }), 200)
+    except Exception as e:
+        print(e)
+        return make_response(
+            jsonify({
+                'code': 500,
+                'message': 'Internal Server Error',
+                'detail': str(e)
+            }), 500)
+
+
+@bp.route('/token', methods=['GET'])
+@login_required
+def get_current_token():
+    try:
+        uid = g.get('uid')
+        key = f'bot_token_{uid}'
+        bot_token = redis_repository.get_key(key)
+        if bot_token is None:
+            return make_response(
+                jsonify({
+                    'code': 404,
+                    'message': 'Not Found',
+                    'detail': 'Token not found, generate new one'
+                }), 404)
+
+        return make_response(
+            jsonify({
+                'code': 200,
+                'message': 'Get Bot Token Successful',
+                'detail': {
+                    'token': bot_token
+                }
+            }), 200)
     except Exception as e:
         print(e)
         return make_response(
