@@ -17,5 +17,10 @@ class BaseCollection:
     def delete_one(self, params: Dict) -> int:
         return self.collection.delete_one(params).deleted_count
 
-    def update_one(self, filter: Dict, params: Dict) -> int:
-        return self.collection.update_one(filter, params).modified_count
+    def update_one(self, filter: Dict, params: Dict) -> Dict:
+        result = self.collection.update_one(filter, params).raw_result
+        formatted_result = {
+            'total_matched': result.get('n'),
+            'total_modified': result.get('nModified'),
+        }
+        return formatted_result

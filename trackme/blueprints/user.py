@@ -48,13 +48,19 @@ def update():
     try:
         data = UpdateUser.validate(request.json)
         result = user_collection.update_one({'_id': ObjectId(g.get('uid'))}, {'$set': data})
-        print(result)
+        if result.get('n') == 0:
+            return make_response(
+                jsonify({
+                    'code': 404,
+                    'message': 'Not Found',
+                    'detail': 'User not found'
+                }), 404)
 
         return make_response(
             jsonify({
                 'code': 200,
                 'message': 'Update User Successful',
-                'detail': 'Status OK'
+                'detail': result
             }), 200)
     except ValidationException as e:
         return make_response(jsonify({
