@@ -4,5 +4,5 @@ from trackme.helper.validation import *
 
 class RefreshJWTToken(BaseValidation):
     validation = {
-        'refresh_token': (is_string, True),
+        'refresh_token': (is_it(str), True),
     }

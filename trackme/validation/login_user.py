@@ -4,6 +4,6 @@ from trackme.helper.validation import *
 
 class LoginUser(BaseValidation):
     validation = {
-        'username': (is_string, True),
-        'password': (is_string, True),
+        'username': (is_it(str), True),
+        'password': (is_it(str), True),
     }

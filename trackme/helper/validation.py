@@ -1,22 +1,16 @@
 from typing import Any
 from trackme.exceptions.validation_exception import ValidationException
 
+def is_it(var_type: type) -> None:
+    def wrapper(value: Any):
+        if not isinstance(value, var_type):
+            raise ValidationException(f'Value must be a {var_type.__name__}')
+    return wrapper
+
 def is_numeric(value: Any) -> None:
     str_value = str(value)
     if not str_value.isnumeric():
         raise ValidationException('Value must be numeric')
-
-def is_string(value: Any) -> None:
-    if not isinstance(value, str):
-        raise ValidationException('Value must be a string')
-
-def is_list_of_string(value: Any) -> None:
-    if not isinstance(value, list):
-        raise ValidationException('Value must be a list')
-    for alias in value:
-        if not isinstance(alias, str):
-            raise ValidationException('Value must be a string')
-    return True
 
 def is_password_valid(value: Any) -> None:
     if not isinstance(value, str):
@@ -29,20 +23,15 @@ def is_password_valid(value: Any) -> None:
         raise ValidationException('Value must contain at least one uppercase letter')
     if not any(char.islower() for char in value):
         raise ValidationException('Value must contain at least one lowercase letter')
-    return True
 
-def is_location_valid(value: Any) -> None:
-    if not isinstance(value, list):
-        raise ValidationException('Value must be a list')
-    if len(value) != 2:
-        raise ValidationException('Value must consists of latitude and longitude')
-    lat, long = value
-    if not isinstance(lat, str) or not isinstance(long, str):
-        raise ValidationException('Latitude and longitude must be numeric strings')
-    if not lat.isnumeric() or not long.isnumeric():
-        raise ValidationException('Latitude and longitude must be numeric strings')
-    if float(lat) < -90 or float(lat) > 90:
-        raise ValidationException('Latitude must be between -90 and 90')
-    if float(long) < -180 or float(long) > 180:
-        raise ValidationException('Longitude must be between -180 and 180')
-    return True
+def is_coordinate_valid(value: Any, min_val:float, max_val:float) -> None:
+    if not isinstance(value, str) or not value.isnumeric():
+        raise ValidationException('Value must be numeric strings')
+    if float(value) < min_val or float(value) > max_val:
+        raise ValidationException(f'Value must be between {min_val} and {max_val}')
+
+def is_latitude_valid(value: Any) -> None:
+    is_coordinate_valid(value, -90, 90)
+
+def is_longitude_valid(value: Any) -> None:
+    is_coordinate_valid(value, -180, 180)
