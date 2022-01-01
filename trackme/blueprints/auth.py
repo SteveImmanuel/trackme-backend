@@ -35,8 +35,8 @@ def login_required(function):
 
 
 def store_token(uid: str) -> Tuple[str, str]:
-    access_token = generate_token(uid, TokenType.ACCESS)
-    refresh_token = generate_token(uid, TokenType.REFRESH)
+    access_token = generate_jwt_token(uid, TokenType.ACCESS)
+    refresh_token = generate_jwt_token(uid, TokenType.REFRESH)
 
     h_access_token = get_hash(access_token)
     h_refresh_token = get_hash(refresh_token)
@@ -121,7 +121,7 @@ def register():
 def refresh():
     try:
         data = RefreshJWTToken.validate(request.json)
-        refresh_token = verify_and_decode_token(data['refresh_token'])
+        refresh_token = verify_and_decode_jwt_token(data['refresh_token'])
         if refresh_token['type'] != TokenType.REFRESH.value:
             raise InvalidTokenError()
 
@@ -200,7 +200,7 @@ def load_jwt():
             is_revoked = redis_repository.get_key(get_hash(access_token))
 
             if is_revoked is None:
-                decoded_token = verify_and_decode_token(access_token)
+                decoded_token = verify_and_decode_jwt_token(access_token)
 
                 if decoded_token['type'] == TokenType.ACCESS.value:
                     g.uid = decoded_token['uid']
