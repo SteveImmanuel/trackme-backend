@@ -26,6 +26,7 @@ class LocationRepository(BaseRepository):
             data.get('start', '-1d'),
         )
 
+        longitude = latitude = None
         for record in records:
             if record.get_field() == 'longitude':
                 longitude = record.get_value()
