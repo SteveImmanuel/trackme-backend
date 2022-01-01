@@ -15,3 +15,19 @@ def get_key(key: str) -> Union[str, None]:
     if value:
         return value.decode('utf-8')
     return None
+
+
+def hset_key(hash: str, key: str, value: str, expiry_time: int = REDIS_DEFAULT_EXPIRY_TIME):
+    client.hset(hash, key, value.encode('utf-8'))
+    client.expire(hash, expiry_time)
+
+
+def hget_key(hash: str, key: str) -> Union[str, None]:
+    value = client.hget(hash, key)
+    if value:
+        return value.decode('utf-8')
+    return None
+
+
+def is_key_exist(key: str) -> int:
+    return client.exists(key)

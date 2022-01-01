@@ -1,12 +1,34 @@
+import pytz
+import trackme.database.redis as redis_repository
+from typing import Dict, Union
+from datetime import datetime
 from flask import Blueprint, jsonify, make_response, g, request
-from flask.wrappers import Request
-from trackme.blueprints.auth import login, login_required
+from trackme.blueprints.auth import login_required
 from trackme.database.influx.location_repository import LocationRepository
 from trackme.validation.post_location import PostLocation
 from trackme.exceptions.validation_exception import ValidationException
+from trackme.contants import *
 
 bp = Blueprint('location', __name__, url_prefix='/location')
 location_repo = LocationRepository()
+
+
+def set_location_cache(data: Dict) -> None:
+    hash_key = 'location_' + data.get('uid')
+    for key, value in data.items():
+        redis_repository.hset_key(hash_key, key, value)
+
+
+def get_location_cache(uid: str) -> Union[None, Dict]:
+    hash_key = 'location_' + uid
+    if not redis_repository.is_key_exist(hash_key):
+        return None
+    data = {}
+    data['uid'] = redis_repository.hget_key(hash_key, 'uid')
+    data['longitude'] = redis_repository.hget_key(hash_key, 'longitude')
+    data['latitude'] = redis_repository.hget_key(hash_key, 'latitude')
+    data['timestamp'] = redis_repository.hget_key(hash_key, 'timestamp')
+    return data
 
 
 @bp.route('', methods=['GET'])
@@ -15,11 +37,15 @@ def get():
     try:
         data = {'uid': g.get('uid'), 'start': '-1w'}
 
-        #TODO: get from cache if exist
-        print(data)
+        # get from cache if exist
+        result = get_location_cache(g.get('uid'))
+        if result is None:
+            result = location_repo.find_latest_one(data)
+            result.timestamp = result.timestamp.astimezone(pytz.timezone(TIMEZONE))
+            result.timestamp = result.timestamp.strftime('%a, %d %b %I:%M %p')
+            result = result.to_dict()
+            set_location_cache(result)
 
-        result = location_repo.find_latest_one(data)
-        print(result)
         if result is None:
             return make_response(
                 jsonify({
@@ -32,7 +58,7 @@ def get():
             jsonify({
                 'code': 200,
                 'message': 'Get Location Successful',
-                'detail': result.to_dict()
+                'detail': result
             }), 200)
 
     except Exception as e:
@@ -50,10 +76,13 @@ def post():
     try:
         data = PostLocation.validate(request.json)
         data['uid'] = g.get('uid')
-
+        datetime.now()
         location_repo.create_one(data)
 
-        #TODO: save to cache
+        # save to cache
+        now = datetime.now(tz=pytz.timezone(TIMEZONE))
+        data['timestamp'] = now.strftime('%a, %d %b %I:%M %p')
+        set_location_cache(data)
 
         return make_response(
             jsonify({
