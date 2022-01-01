@@ -10,7 +10,7 @@ class User(BaseModel):
         username: str,
         password: str,
         alias: List[str] = None,
-        locations: List[List[str]] = None,
+        locations: List[Dict] = None,
         bot_channels: List[str] = None,
     ):
         self.uid = uid

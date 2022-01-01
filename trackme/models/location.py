@@ -1,10 +1,11 @@
 from typing import Dict
 from trackme.models.base_model import BaseModel
+from datetime import datetime
 
 
 class Location(BaseModel):
 
-    def __init__(self, uid: str, timestamp: str, longitude: str, latitude: str):
+    def __init__(self, uid: str, timestamp: datetime, longitude: str, latitude: str):
         self.uid = uid
         self.timestamp = timestamp
         self.longitude = longitude
