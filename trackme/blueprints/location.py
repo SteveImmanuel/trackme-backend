@@ -1,5 +1,6 @@
 import pytz
 import trackme.database.redis as redis_repository
+
 from typing import Dict, Union
 from datetime import datetime
 from flask import Blueprint, jsonify, make_response, g, request
