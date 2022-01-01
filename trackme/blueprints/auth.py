@@ -55,7 +55,7 @@ def login():
         user = user_collection.find_one({'username': data['username']})
 
         if user is not None:
-            if check_password_hash(user['password'], data['password']):
+            if check_password_hash(user.password, data['password']):
                 uid = str(user.uid)
                 access_token, refresh_token = store_token(uid)
 
