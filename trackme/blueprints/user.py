@@ -16,8 +16,6 @@ user_collection = Users()
 def get():
     try:
         user = user_collection.find_one({'_id': ObjectId(g.get('uid'))})
-        print(ObjectId(g.get('uid')))
-        print(user)
 
         if user is None:
             return make_response(
@@ -31,7 +29,7 @@ def get():
             jsonify({
                 'code': 200,
                 'message': 'Get User Successful',
-                'data': user.to_dict(),
+                'detail': user.to_dict(),
             }), 200)
     except Exception as e:
         return make_response(
