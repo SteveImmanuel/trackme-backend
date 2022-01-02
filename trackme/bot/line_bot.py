@@ -67,6 +67,8 @@ def register_channel(bot_token: str, event: MessageEvent):
         profile_info = api.get_group_summary(source.sender_id)
         display_name = profile_info.group_name
         photo_url = profile_info.picture_url
+    else:
+        raise BotMessageException('This channel is not supported. Bot only supports user or group')
 
     update_data = AddBotChannel.validate({
         'id': source.sender_id,
@@ -109,7 +111,7 @@ def unregister_channel(bot_token: str, event: MessageEvent):
     })
     if result.get('total_matched') != 1:
         raise BotMessageException(
-            'There is problem a problem in registering user. Please try again')
+            'There is problem a problem in unregistering user. Please try again')
 
     user = user_collection.find_one({'_id': ObjectId(uid)})
     api.reply_message(event.reply_token,
