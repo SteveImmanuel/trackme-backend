@@ -43,44 +43,11 @@ def generate_token():
         uid = g.get('uid')
         bot_token = generate_random_numeric_token(4)
         print(bot_token)
-        redis_repository.set_key(f'bot_token_{uid}', bot_token, BOT_TOKEN_EXPIRY_TIME)
+        redis_repository.set_key(f'bot_token_{bot_token}', uid, BOT_TOKEN_EXPIRY_TIME)
         return make_response(
             jsonify({
                 'code': 200,
                 'message': 'Generate Bot Token Successful',
-                'detail': {
-                    'token': bot_token
-                }
-            }), 200)
-    except Exception as e:
-        print(e)
-        return make_response(
-            jsonify({
-                'code': 500,
-                'message': 'Internal Server Error',
-                'detail': str(e)
-            }), 500)
-
-
-@bp.route('/token', methods=['GET'])
-@login_required
-def get_current_token():
-    try:
-        uid = g.get('uid')
-        key = f'bot_token_{uid}'
-        bot_token = redis_repository.get_key(key)
-        if bot_token is None:
-            return make_response(
-                jsonify({
-                    'code': 404,
-                    'message': 'Not Found',
-                    'detail': 'Token not found, generate new one'
-                }), 404)
-
-        return make_response(
-            jsonify({
-                'code': 200,
-                'message': 'Get Bot Token Successful',
                 'detail': {
                     'token': bot_token
                 }
