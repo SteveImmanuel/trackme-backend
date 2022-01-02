@@ -17,5 +17,13 @@ class UpdateUser(BaseValidation):
             }],
             False,
         ),
-        'bot_channels': ([is_it(str)], False),
+        'bot_channels': (
+            [{
+                'id': (is_it(str), True),
+                'type': (is_it(str), True),
+                'photo_url': (is_it(str), False),
+                'display_name': (is_it(str), True),
+            }],
+            False,
+        ),
     }
