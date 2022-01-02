@@ -8,8 +8,9 @@ def is_it(var_type: type) -> None:
     return wrapper
 
 def is_numeric(value: Any) -> None:
-    str_value = str(value)
-    if not str_value.isnumeric():
+    try:
+        float(value)
+    except:
         raise ValidationException('Value must be numeric')
 
 def is_password_valid(value: Any) -> None:
@@ -25,8 +26,7 @@ def is_password_valid(value: Any) -> None:
         raise ValidationException('Value must contain at least one lowercase letter')
 
 def is_coordinate_valid(value: Any, min_val:float, max_val:float) -> None:
-    if not isinstance(value, str) or not value.isnumeric():
-        raise ValidationException('Value must be numeric strings')
+    is_numeric(value)
     if float(value) < min_val or float(value) > max_val:
         raise ValidationException(f'Value must be between {min_val} and {max_val}')
 
