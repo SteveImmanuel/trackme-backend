@@ -1,0 +1,2 @@
+class BotMessageException(Exception):
+    pass
