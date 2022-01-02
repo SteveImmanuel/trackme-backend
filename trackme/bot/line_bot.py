@@ -124,7 +124,7 @@ def unregister_channel(bot_token: str, event: MessageEvent):
 
 
 def track_location(alias: str, event: MessageEvent):
-    alias = alias.lstrip().split(' ')
+    alias = alias.lower().lstrip().split(' ')
     if len(alias) != 1:
         raise BotMessageException('Usage: /track <alias>')
 
@@ -152,14 +152,7 @@ def track_location(alias: str, event: MessageEvent):
     if user is None:
         raise BotMessageException('Alias not found')
 
-    result = get_location_cache(user.uid)
-    if result is None:
-        data = {'uid': user.uid, 'start': '-1w'}
-        result = location_repo.find_latest_one(data)
-        result.timestamp = result.timestamp.astimezone(pytz.timezone(TIMEZONE))
-        result.timestamp = result.timestamp.strftime('%a, %d %b %I:%M %p')
-        result = result.to_dict()
-        set_location_cache(result)
+    result = get_last_location(user.uid)
 
     if result is None:
         raise BotMessageException(f'Location log of {alias} not found within one week')

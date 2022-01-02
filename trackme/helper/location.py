@@ -1,7 +1,12 @@
 import math
+import pytz
+
 from typing import Dict, Union
 import trackme.database.redis as redis_repository
+from trackme.database.influx.location_repository import LocationRepository
+from trackme.contants import TIMEZONE
 
+location_repo = LocationRepository()
 EARTH_RADIUS = 6378137 # in m
 
 def calculate_distance(lat1, long1, lat2, long2):
@@ -18,10 +23,17 @@ def set_location_cache(data: Dict) -> None:
         redis_repository.hset_key(hash_key, key, value)
 
 
-def get_location_cache(uid: str) -> Union[None, Dict]:
+def get_last_location(uid: str) -> Union[None, Dict]:
     hash_key = 'location_' + uid
     if not redis_repository.is_key_exist(hash_key):
+        query = {'uid': uid, 'start': '-1w'}
+        result = location_repo.find_latest_one(query)
+        result.timestamp = result.timestamp.astimezone(pytz.timezone(TIMEZONE))
+        result.timestamp = result.timestamp.strftime('%a, %d %b %I:%M %p')
+        result = result.to_dict()
+        set_location_cache(result)
         return None
+        
     data = {}
     data['uid'] = redis_repository.hget_key(hash_key, 'uid')
     data['longitude'] = redis_repository.hget_key(hash_key, 'longitude')

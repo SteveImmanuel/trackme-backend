@@ -18,15 +18,7 @@ location_repo = LocationRepository()
 @login_required
 def get():
     try:
-        # get from cache if exist
-        result = get_location_cache(g.get('uid'))
-        if result is None:
-            data = {'uid': g.get('uid'), 'start': '-1w'}
-            result = location_repo.find_latest_one(data)
-            result.timestamp = result.timestamp.astimezone(pytz.timezone(TIMEZONE))
-            result.timestamp = result.timestamp.strftime('%a, %d %b %I:%M %p')
-            result = result.to_dict()
-            set_location_cache(result)
+        result = get_last_location(g.get('uid'))
 
         if result is None:
             return make_response(
