@@ -77,7 +77,6 @@ def post():
     try:
         data = PostLocation.validate(request.json)
         data['uid'] = g.get('uid')
-        datetime.now()
         location_repo.create_one(data)
 
         # save to cache
