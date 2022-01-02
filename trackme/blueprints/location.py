@@ -1,7 +1,6 @@
 import pytz
 import trackme.database.redis as redis_repository
 
-from typing import Dict, Union
 from datetime import datetime
 from flask import Blueprint, jsonify, make_response, g, request
 from trackme.blueprints.auth import login_required
@@ -9,38 +8,20 @@ from trackme.database.influx.location_repository import LocationRepository
 from trackme.validation.post_location import PostLocation
 from trackme.exceptions.validation_exception import ValidationException
 from trackme.contants import *
+from trackme.helper.location import *
 
 bp = Blueprint('location', __name__, url_prefix='/location')
 location_repo = LocationRepository()
-
-
-def set_location_cache(data: Dict) -> None:
-    hash_key = 'location_' + data.get('uid')
-    for key, value in data.items():
-        redis_repository.hset_key(hash_key, key, value)
-
-
-def get_location_cache(uid: str) -> Union[None, Dict]:
-    hash_key = 'location_' + uid
-    if not redis_repository.is_key_exist(hash_key):
-        return None
-    data = {}
-    data['uid'] = redis_repository.hget_key(hash_key, 'uid')
-    data['longitude'] = redis_repository.hget_key(hash_key, 'longitude')
-    data['latitude'] = redis_repository.hget_key(hash_key, 'latitude')
-    data['timestamp'] = redis_repository.hget_key(hash_key, 'timestamp')
-    return data
 
 
 @bp.route('', methods=['GET'])
 @login_required
 def get():
     try:
-        data = {'uid': g.get('uid'), 'start': '-1w'}
-
         # get from cache if exist
         result = get_location_cache(g.get('uid'))
         if result is None:
+            data = {'uid': g.get('uid'), 'start': '-1w'}
             result = location_repo.find_latest_one(data)
             result.timestamp = result.timestamp.astimezone(pytz.timezone(TIMEZONE))
             result.timestamp = result.timestamp.strftime('%a, %d %b %I:%M %p')
