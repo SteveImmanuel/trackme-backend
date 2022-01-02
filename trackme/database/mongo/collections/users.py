@@ -1,4 +1,5 @@
 from typing import Dict
+from bson.objectid import ObjectId
 from trackme.database.mongo.collections.base_collection import BaseCollection
 from trackme.models.user import User
 
@@ -16,3 +17,6 @@ class Users(BaseCollection):
         if result is not None:
             return User.from_dict(result)
         return None
+
+    def find_by_id(self, id: str) -> User:
+        return self.find_one({'_id': ObjectId(id)})

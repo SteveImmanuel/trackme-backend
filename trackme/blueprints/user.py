@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, make_response, g, request
 from pymongo.errors import DuplicateKeyError
-from bson.objectid import ObjectId
 from trackme.blueprints.auth import login_required
 from trackme.database.mongo.collections import Users
 from trackme.validation import UpdateUser
@@ -15,7 +14,7 @@ user_collection = Users()
 @login_required
 def get():
     try:
-        user = user_collection.find_one({'_id': ObjectId(g.get('uid'))})
+        user = user_collection.find_by_id(g.get('uid'))
 
         if user is None:
             return make_response(

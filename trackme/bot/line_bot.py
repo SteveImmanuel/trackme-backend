@@ -1,5 +1,3 @@
-import re
-import pytz
 import trackme.database.redis as redis_repository
 
 from flask import Request
@@ -90,7 +88,7 @@ def register_channel(bot_token: str, event: MessageEvent):
         raise BotMessageException(
             'There is problem a problem in registering user. Please try again')
 
-    user = user_collection.find_one({'_id': ObjectId(uid)})
+    user = user_collection.find_by_id(uid)
     api.reply_message(event.reply_token,
                       TextSendMessage(text=f'Registration successful for tracking {user.username}'))
 
@@ -118,7 +116,7 @@ def unregister_channel(bot_token: str, event: MessageEvent):
         raise BotMessageException(
             'There is problem a problem in unregistering user. Please try again')
 
-    user = user_collection.find_one({'_id': ObjectId(uid)})
+    user = user_collection.find_by_id(uid)
     api.reply_message(event.reply_token,
                       TextSendMessage(text=f'Unregistration successful for user {user.username}'))
 
