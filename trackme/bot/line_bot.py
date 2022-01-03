@@ -10,15 +10,12 @@ from trackme.database.mongo.collections import Users
 from trackme.exceptions.bot_message_exception import BotMessageException
 from trackme.validation.add_bot_channel import AddBotChannel
 from trackme.validation.delete_bot_channel import DeleteBotChannel
-from trackme.database.influx.location_repository import LocationRepository
-from trackme.models.location import Location
 from trackme.helper.location import *
 
 # initialize connector
 api = LineBotApi(LINE_BOT_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_BOT_CHANNEL_SECRET)
 user_collection = Users()
-location_repo = LocationRepository()
 
 
 def process_webhook(request: Request):
@@ -128,7 +125,6 @@ def track_location(alias: str, event: MessageEvent):
 
     alias = alias[0]
     source = cast(Source, event.source)
-
     user = user_collection.find_one({
         '$and': [
             {
@@ -142,13 +138,14 @@ def track_location(alias: str, event: MessageEvent):
                 ]
             },
             {
-                'bot_channels.channel_id': source.sender_id
+                'bot_channels.id': source.sender_id
             },
         ]
     })
 
     if user is None:
-        raise BotMessageException('Alias not found')
+        raise BotMessageException(
+            'Alias not found or you don\'t have permission to track that user')
 
     result = get_last_location(user.uid)
 
@@ -163,5 +160,10 @@ def track_location(alias: str, event: MessageEvent):
                             longitude=result.get('longitude')))
 
 
-def push_location_msg(channel_id: str, location: Location):
-    pass
+def push_location_msg(username: str, channel_ids: List[str], location_name: str, is_leaving: bool):
+    verb = 'arrived at'
+    if is_leaving:
+        verb = 'left'
+
+    for id in channel_ids:
+        api.push_message(id, TextSendMessage(text=f'{username} has {verb} {location_name}'))
