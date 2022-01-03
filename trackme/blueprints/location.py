@@ -1,10 +1,11 @@
 import pytz
-import trackme.database.redis as redis_repository
+import trackme.bot.line_bot as LineBot
 
 from datetime import datetime
 from flask import Blueprint, jsonify, make_response, g, request
 from trackme.blueprints.auth import login_required
 from trackme.database.influx.location_repository import LocationRepository
+from trackme.database.mongo.collections import Users
 from trackme.validation.post_location import PostLocation
 from trackme.exceptions.validation_exception import ValidationException
 from trackme.contants import *
@@ -12,6 +13,7 @@ from trackme.helper.location import *
 
 bp = Blueprint('location', __name__, url_prefix='/location')
 location_repo = LocationRepository()
+user_collection = Users()
 
 
 @bp.route('', methods=['GET'])
@@ -51,6 +53,45 @@ def post():
         data = PostLocation.validate(request.json)
         data['uid'] = g.get('uid')
         location_repo.create_one(data)
+
+        user = user_collection.find_by_id(g.get('uid'))
+        if user is None:
+            return make_response(
+                jsonify({
+                    'code': 404,
+                    'message': 'Bad Request',
+                    'detail': 'User not found'
+                }), 404)
+
+        last_location = get_last_location(g.get('uid'))
+        location_before = get_closest_highlight_location(
+            last_location.get('latitude'),
+            last_location.get('longitude'),
+            user.locations,
+        )
+        location_now = get_closest_highlight_location(
+            data.get('latitude'),
+            data.get('longitude'),
+            user.locations,
+        )
+
+        if location_before != location_now:
+            channel_ids = map(lambda x: x.get('id'), user.bot_channels)
+
+            if location_before is not None and location_before.get('alert_on_leave'):
+                LineBot.push_location_msg(
+                    user.username,
+                    channel_ids,
+                    location_before.get('type'),
+                    True,
+                )
+            if location_now is not None and location_now.get('alert_on_arrive'):
+                LineBot.push_location_msg(
+                    user.username,
+                    channel_ids,
+                    location_now.get('type'),
+                    False,
+                )
 
         # save to cache
         now = datetime.now(tz=pytz.timezone(TIMEZONE))
