@@ -1,4 +1,4 @@
-import trackme.bot.line_bot as Bot
+import trackme.bot.line_bot as LineBot
 import trackme.database.redis as redis_repository
 
 from flask import Blueprint, jsonify, make_response, request, g
@@ -10,10 +10,10 @@ from trackme.contants import *
 bp = Blueprint('bot', __name__, url_prefix='/bot')
 
 
-@bp.route('/webhook', methods=['POST'])
+@bp.route('/line', methods=['POST'])
 def webhook():
     try:
-        Bot.process_webhook(request)
+        LineBot.process_webhook(request)
 
         return make_response(jsonify({
             'code': 200,
@@ -42,7 +42,6 @@ def generate_token():
     try:
         uid = g.get('uid')
         bot_token = generate_random_numeric_token(4)
-        print(bot_token)
         redis_repository.set_key(f'bot_token_{bot_token}', uid, BOT_TOKEN_EXPIRY_TIME)
         return make_response(
             jsonify({
