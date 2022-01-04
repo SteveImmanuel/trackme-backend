@@ -55,5 +55,8 @@ jobs:
     - name: Stop running containers
       run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme down"
       
+    - name: Pull latest image
+      run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "docker pull steveimm/trackme:latest"
+      
     - name: Start containers with latest update
       run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme up -d"
