@@ -2,32 +2,23 @@ name: Build and Deploy
 
 on:
   push:
-    tags: 
-      - '*'
     
 jobs:
-  push-to-registry:
+  deploy-to-vm:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
       
-    - name: Get release tag
-      id: release_tag
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+    - name: Create app directory
+      run: ssh -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} root@${{ secrets.VM_IP }} "mkdir -p trackme"
       
-    - name: Login Docker
-      uses: docker/login-action@v1.12.0
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+    - name: Copy docker compose configuration
+      run: scp -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} docker-compose.yml root@${{ secrets.VM_IP }}:~/trackme
         
-    - name: Build image and push to registry
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: |
-          steveimm/trackme:latest
-          steveimm/trackme:${{ steps.release_tag.outputs.tag }}
+    - name: Stop running containers
+      run: ssh -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme stop"
+      
+    - name: Start containers with latest update
+      run: ssh -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme up -d"
