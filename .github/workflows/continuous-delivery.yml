@@ -13,7 +13,7 @@ jobs:
     
     - name: Create SSH key
       run: |
-        echo ${{ secrets.SSH_KEY }} > key.pem
+        echo "${{ secrets.SSH_KEY }}" > key.pem
         chmod 400 key.pem
       
     - name: Create app directory
