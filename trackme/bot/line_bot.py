@@ -41,7 +41,6 @@ def echo(event: MessageEvent) -> None:
     except BotMessageException as e:
         api.reply_message(event.reply_token, TextSendMessage(text=str(e)))
     except Exception as e:
-        print(e)
         api.reply_message(
             event.reply_token,
             TextSendMessage(text=str('There is trouble with the server. Please try again later')))
