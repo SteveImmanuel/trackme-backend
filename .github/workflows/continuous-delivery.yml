@@ -53,7 +53,7 @@ jobs:
       run: scp -o "StrictHostKeyChecking=no" -i key.pem docker-compose.yml root@${{ secrets.VM_IP }}:~/trackme
         
     - name: Stop running containers
-      run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme stop"
+      run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme down"
       
     - name: Start containers with latest update
       run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme up -d"
