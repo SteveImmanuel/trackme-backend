@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, configure-workflow ]
   pull_request:
     branches: [ master ]
     
@@ -17,6 +17,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    - run: echo $DOCKER_USERNAME $DOCKER_TOKEN
     - name: Login Docker
       uses: docker/login-action@v1.12.0
       with:
