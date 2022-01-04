@@ -28,6 +28,6 @@ jobs:
       with:
         context: .
         push: true
-        tags: 
+        tags: |
           steveimm/trackme:latest
           steveimm/trackme:${{ steps.release_tag.outputs.tag }}
