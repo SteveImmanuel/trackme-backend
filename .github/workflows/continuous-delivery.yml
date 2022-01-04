@@ -2,10 +2,40 @@ name: Build and Deploy
 
 on:
   push:
+    tags: 
+      - '*'
     
 jobs:
+  push-to-registry:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Get release tag
+      id: release_tag
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      
+    - name: Login Docker
+      uses: docker/login-action@v1.12.0
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        
+    - name: Build image and push to registry
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          steveimm/trackme:latest
+          steveimm/trackme:${{ steps.release_tag.outputs.tag }}
+
+
   deploy-to-vm:
     runs-on: ubuntu-latest
+    needs: push-to-registry
 
     steps:
     - name: Checkout repository
