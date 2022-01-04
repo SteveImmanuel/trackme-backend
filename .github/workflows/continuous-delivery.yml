@@ -10,15 +10,20 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    
+    - name: Create SSH key
+      run: |
+        echo ${{ secrets.SSH_KEY }} > key.pem
+        chmod 400 key.pem
       
     - name: Create app directory
-      run: ssh -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} root@${{ secrets.VM_IP }} "mkdir -p trackme"
+      run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "mkdir -p trackme"
       
     - name: Copy docker compose configuration
-      run: scp -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} docker-compose.yml root@${{ secrets.VM_IP }}:~/trackme
+      run: scp -o "StrictHostKeyChecking=no" -i key.pem docker-compose.yml root@${{ secrets.VM_IP }}:~/trackme
         
     - name: Stop running containers
-      run: ssh -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme stop"
+      run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme stop"
       
     - name: Start containers with latest update
-      run: ssh -o "StrictHostKeyChecking=no" -i ${{ secrets.SSH_KEY }} root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme up -d"
+      run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme up -d"
