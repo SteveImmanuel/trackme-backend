@@ -82,14 +82,14 @@ def post():
                 LineBot.push_location_msg(
                     user.username,
                     channel_ids,
-                    location_before.get('type'),
+                    location_before.get('name'),
                     True,
                 )
             if location_now is not None and location_now.get('alert_on_arrive'):
                 LineBot.push_location_msg(
                     user.username,
                     channel_ids,
-                    location_now.get('type'),
+                    location_now.get('name'),
                     False,
                 )
 

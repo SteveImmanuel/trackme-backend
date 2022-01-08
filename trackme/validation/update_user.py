@@ -11,7 +11,7 @@ class UpdateUser(BaseValidation):
             [{
                 'latitude': (is_latitude_valid, True),
                 'longitude': (is_longitude_valid, True),
-                'type': (is_it(str), True),
+                'name': (is_it(str), True),
                 'alert_on_leave': (is_it(bool), True),
                 'alert_on_arrive': (is_it(bool), True),
             }],
