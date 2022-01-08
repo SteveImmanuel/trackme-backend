@@ -6,7 +6,7 @@ class CreateUser(BaseValidation):
     validation = {
         'username': (is_it(str), True),
         'password': (is_password_valid, True),
-        'alias': ([is_it(str)], False),
+        'aliases': ([is_it(str)], False),
         'locations': (
             [{
                 'latitude': (is_latitude_valid, True),

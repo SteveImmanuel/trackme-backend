@@ -130,7 +130,7 @@ def track_location(alias: str, event: MessageEvent):
             {
                 '$or': [
                     {
-                        'alias': alias
+                        'aliases': alias
                     },
                     {
                         'username': alias

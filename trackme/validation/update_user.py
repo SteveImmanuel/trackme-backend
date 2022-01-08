@@ -6,7 +6,7 @@ class UpdateUser(BaseValidation):
     validation = {
         'username': (is_it(str), False),
         'password': (is_password_valid, False),
-        'alias': ([is_it(str)], False),
+        'aliases': ([is_it(str)], False),
         'locations': (
             [{
                 'latitude': (is_latitude_valid, True),

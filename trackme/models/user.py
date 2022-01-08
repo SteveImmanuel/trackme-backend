@@ -9,14 +9,14 @@ class User(BaseModel):
         uid: str,
         username: str,
         password: str,
-        alias: List[str] = None,
+        aliases: List[str] = None,
         locations: List[Dict] = None,
         bot_channels: List[str] = None,
     ):
         self.uid = uid
         self.username = username
         self.password = password
-        self.alias = alias
+        self.aliases = aliases
         self.locations = locations
         self.bot_channels = bot_channels
 
@@ -24,7 +24,7 @@ class User(BaseModel):
         return {
             'uid': self.uid,
             'username': self.username,
-            'alias': self.alias,
+            'aliases': self.aliases,
             'locations': self.locations,
             'bot_channels': self.bot_channels,
         }
@@ -35,7 +35,7 @@ class User(BaseModel):
             str(data.get('_id')),
             data.get('username'),
             data.get('password'),
-            data.get('alias', None),
+            data.get('aliases', None),
             data.get('locations', None),
             data.get('bot_channels', None),
         )

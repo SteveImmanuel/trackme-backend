@@ -7,7 +7,7 @@ from trackme.models.user import User
 class Users(BaseCollection):
     collection_name = 'users'
     # if item is a tuple, treat it as unique index
-    indexes = [('username', ), 'alias', 'bot_channels']
+    indexes = [('username', ), 'aliases', 'bot_channels']
 
     def __init__(self) -> None:
         super().__init__(self.collection_name)
