@@ -8,4 +8,5 @@ class AddBotChannel(BaseValidation):
         'type': (is_it(str), True),
         'photo_url': (is_it(str), True),
         'display_name': (is_it(str), True),
+        'platform': (is_it(str), True),
     }

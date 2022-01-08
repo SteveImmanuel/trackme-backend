@@ -73,7 +73,8 @@ def register_channel(bot_token: str, event: MessageEvent):
         'id': source.sender_id,
         'type': source.type.capitalize(),
         'display_name': display_name,
-        'photo_url': photo_url
+        'photo_url': photo_url,
+        'platform': 'line'
     })
     result = user_collection.update_one({'_id': ObjectId(uid)}, {
         '$addToSet': {
@@ -82,7 +83,7 @@ def register_channel(bot_token: str, event: MessageEvent):
     })
     if result.get('total_matched') != 1:
         raise BotMessageException(
-            'There is problem a problem in registering user. Please try again')
+            'There is problem a problem in registering channel. Please try again')
 
     user = user_collection.find_by_id(uid)
     api.reply_message(event.reply_token,
@@ -110,7 +111,7 @@ def unregister_channel(bot_token: str, event: MessageEvent):
     })
     if result.get('total_matched') != 1:
         raise BotMessageException(
-            'There is problem a problem in unregistering user. Please try again')
+            'There is problem a problem in unregistering channel. Please try again')
 
     user = user_collection.find_by_id(uid)
     api.reply_message(event.reply_token,

@@ -23,6 +23,7 @@ class CreateUser(BaseValidation):
                 'type': (is_it(str), True),
                 'photo_url': (is_it(str), False),
                 'display_name': (is_it(str), True),
+                'platform': (is_it(str), True),
             }],
             False,
         ),
