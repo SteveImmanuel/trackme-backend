@@ -4,7 +4,7 @@ bp = Blueprint('info', __name__, url_prefix='/')
 
 
 @bp.route('/health', methods=['GET'])
-def login():
+def health():
     return make_response(
         jsonify({
             'code': 200,
