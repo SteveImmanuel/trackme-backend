@@ -93,6 +93,7 @@ def register():
     try:
         data = CreateUser.validate(request.json)
         data['password'] = generate_password_hash(data['password'])
+        data['aliases'] = data['locations'] = data['bot_channels'] = []
         user_collection.create_one(data)
         return make_response(jsonify({'code': 200, 'message': 'Register Successful'}), 200)
     except ValidationException as e:
@@ -189,6 +190,15 @@ def logout():
                 'message': 'Internal Server Error',
                 'detail': str(e)
             }), 500)
+
+
+@bp.route('/check', methods=['GET'])
+@login_required
+def health():
+    return make_response(jsonify({
+        'code': 200,
+        'message': 'Auth Check Success',
+    }), 200)
 
 
 @bp.before_app_request
