@@ -38,13 +38,16 @@ class BaseValidation:
                                 raise ValidationException(
                                     f'Error on key \'{property}\': Value must be a list')
 
-                            property_value = []
-                            for idx, item in enumerate(data[property]):
-                                try:
-                                    property_value.append(cls.validate(item, validator[0]))
-                                    result[property] = property_value
-                                except ValidationException as e:
-                                    raise ValidationException(f'On index-{idx}: {e}')
+                            if len(data[property]) == 0:
+                                result[property] = []
+                            else:
+                                property_value = []
+                                for idx, item in enumerate(data[property]):
+                                    try:
+                                        property_value.append(cls.validate(item, validator[0]))
+                                        result[property] = property_value
+                                    except ValidationException as e:
+                                        raise ValidationException(f'On index-{idx}: {e}')
 
                         elif isinstance(validator, dict):
                             result[property] = cls.validate(data[property], validator)
