@@ -72,7 +72,7 @@ def login():
                 'code': 403,
                 'message': 'Login Failed',
                 'detail': 'Wrong username/password'
-            }), 200)
+            }), 403)
     except ValidationException as e:
         return make_response(jsonify({
             'code': 400,
