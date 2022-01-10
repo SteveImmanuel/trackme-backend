@@ -152,12 +152,26 @@ def track_location(alias: str, event: MessageEvent):
     if result is None:
         raise BotMessageException(f'Location log of {alias} not found within one week')
 
+    closest_location = get_closest_highlight_location(
+        result.get('latitude'),
+        result.get('longitude'),
+        user.locations,
+    )
+
+    msg = f'{alias}\'s last known location'
+    if closest_location is not None:
+        location_name = closest_location.get('name')
+        msg = f'{alias} is at {location_name}'
+
     api.reply_message(
         event.reply_token,
-        LocationSendMessage(title=f'{alias}\'s last known location',
-                            address=result.get('timestamp'),
-                            latitude=result.get('latitude'),
-                            longitude=result.get('longitude')))
+        LocationSendMessage(
+            title=msg,
+            address=result.get('timestamp'),
+            latitude=result.get('latitude'),
+            longitude=result.get('longitude'),
+        ),
+    )
 
 
 def push_location_msg(username: str, channel_ids: List[str], location_name: str, is_leaving: bool):
