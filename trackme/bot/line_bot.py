@@ -119,7 +119,7 @@ def unregister_channel(bot_token: str, event: MessageEvent):
 
 
 def track_location(alias: str, event: MessageEvent):
-    alias = alias.lower().lstrip().split(' ')
+    alias = alias.lstrip().split(' ')
     if len(alias) != 1:
         raise BotMessageException('Usage: /track <alias>')
 

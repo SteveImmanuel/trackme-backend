@@ -29,10 +29,12 @@ def get_last_location(uid: str) -> Union[None, Dict]:
     if not redis_repository.is_key_exist(hash_key):
         query = {'uid': uid, 'start': '-1w'}
         result = location_repo.find_latest_one(query)
-        result.timestamp = result.timestamp.astimezone(pytz.timezone(TIMEZONE))
-        result.timestamp = result.timestamp.strftime('%a, %d %b %I:%M %p')
-        result = result.to_dict()
-        set_location_cache(result)
+        if result is not None:
+            result.timestamp = result.timestamp.astimezone(pytz.timezone(TIMEZONE))
+            result.timestamp = result.timestamp.strftime('%a, %d %b %I:%M %p')
+            result = result.to_dict()
+            set_location_cache(result)
+            return result
         return None
 
     data = {}
