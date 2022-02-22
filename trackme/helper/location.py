@@ -7,7 +7,8 @@ from trackme.database.influx.location_repository import LocationRepository
 from trackme.contants import TIMEZONE, THRESHOLD_DISTANCE
 
 location_repo = LocationRepository()
-EARTH_RADIUS = 6378137 # in m
+EARTH_RADIUS = 6378137  # in m
+
 
 def calculate_distance(lat1, long1, lat2, long2):
     delta_lat = math.radians(lat2 - lat1)
@@ -17,10 +18,13 @@ def calculate_distance(lat1, long1, lat2, long2):
         math.radians(lat2)) * math.sin(delta_long / 2) * math.sin(delta_long / 2)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return EARTH_RADIUS * c
-    
+
+
 def set_location_cache(data: Dict) -> None:
     hash_key = 'location_' + data.get('uid')
     for key, value in data.items():
+        if key not in ['latitude', 'longitude']:
+            continue
         redis_repository.hset_key(hash_key, key, value)
 
 

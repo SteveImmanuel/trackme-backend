@@ -181,3 +181,15 @@ def push_location_msg(username: str, channel_ids: List[str], location_name: str,
 
     for id in channel_ids:
         api.push_message(id, TextSendMessage(text=f'{username} has {verb} {location_name}'))
+
+
+def push_low_battery_alert(username: str, channel_ids: List[str]):
+    print(f'{username} has low battery, so he might not be able to respond to any messages')
+    for id in channel_ids:
+        api.push_message(
+            id,
+            TextSendMessage(
+                text=
+                f'{username} has low battery, so he/she might not be able to respond to any messages',
+            ),
+        )

@@ -75,9 +75,9 @@ def post():
             user.locations,
         )
 
-        if location_before != location_now:
-            channel_ids = map(lambda x: x.get('id'), user.bot_channels)
+        channel_ids = map(lambda x: x.get('id'), user.bot_channels)
 
+        if location_before != location_now:
             if location_before is not None and location_before.get('alert_on_leave'):
                 LineBot.push_location_msg(
                     user.username,
@@ -92,6 +92,10 @@ def post():
                     location_now.get('name'),
                     False,
                 )
+
+        battery_level = data.get('battery_level', 100)
+        if battery_level < BATTERY_LEVEL_THRESHOLD:
+            LineBot.push_low_battery_alert(user.username, channel_ids)
 
         # save to cache
         now = datetime.now(tz=pytz.timezone(TIMEZONE))
