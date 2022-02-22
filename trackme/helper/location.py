@@ -23,9 +23,7 @@ def calculate_distance(lat1, long1, lat2, long2):
 def set_location_cache(data: Dict) -> None:
     hash_key = 'location_' + data.get('uid')
     for key, value in data.items():
-        if key not in ['latitude', 'longitude']:
-            continue
-        redis_repository.hset_key(hash_key, key, value)
+        redis_repository.hset_key(hash_key, key, str(value))
 
 
 def get_last_location(uid: str) -> Union[None, Dict]:
