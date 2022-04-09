@@ -1,4 +1,3 @@
-from dataclasses import field
 import trackme.database.influx as influx_db
 from typing import Dict, Union, Generator, Any
 from influxdb_client.client.flux_table import FluxRecord
