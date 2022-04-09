@@ -94,8 +94,7 @@ def post():
                 )
 
         battery_level = data.get('battery_level', 100)
-        if battery_level < BATTERY_LEVEL_THRESHOLD and battery_level <= last_location.get(
-                'battery_level'):
+        if battery_level < BATTERY_LEVEL_THRESHOLD:
             LineBot.push_low_battery_alert(user.username, channel_ids)
 
         # save to cache
