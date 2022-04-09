@@ -10,6 +10,9 @@ class BaseCollection:
     def find_one(self, query: Dict) -> Dict:
         return self.collection.find_one(query)
 
+    def find_all(self, query: Dict) -> Dict:
+        return self.collection.find(query)
+
     def create_one(self, params: Dict) -> str:
         result = self.collection.insert_one(params)
         return str(result.inserted_id)

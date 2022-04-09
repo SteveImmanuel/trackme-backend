@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List, Union
 from bson.objectid import ObjectId
 from trackme.database.mongo.collections.base_collection import BaseCollection
 from trackme.models.user import User
@@ -16,6 +16,12 @@ class Users(BaseCollection):
         result = super().find_one(query)
         if result is not None:
             return User.from_dict(result)
+        return None
+
+    def find_all(self, query: Dict) -> Union[List[User], None]:
+        result = super().find_all(query)
+        if result:
+            return [User.from_dict(item) for item in result]
         return None
 
     def find_by_id(self, id: str) -> User:
