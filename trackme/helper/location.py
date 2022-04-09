@@ -49,8 +49,11 @@ def get_last_location(uid: str) -> Union[None, Dict]:
     return data
 
 
-def get_closest_highlight_location(latitude: Union[float, str], longitude: Union[float, str],
-                                   locations: List[Dict]) -> Union[Dict, None]:
+def get_closest_highlight_location(
+    latitude: Union[float, str],
+    longitude: Union[float, str],
+    locations: List[Dict],
+) -> Union[Dict, None]:
     min_dist = math.inf
     latitude = float(latitude)
     longitude = float(longitude)
