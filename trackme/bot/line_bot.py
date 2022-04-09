@@ -38,6 +38,8 @@ def echo(event: MessageEvent) -> None:
             unregister_channel(rest_msg, event)
         elif keyword == '/track':
             track_location(rest_msg, event)
+        else:
+            handle_indirect_mention(message.text)
     except BotMessageException as e:
         api.reply_message(event.reply_token, TextSendMessage(text=str(e)))
     except Exception as e:
@@ -47,7 +49,7 @@ def echo(event: MessageEvent) -> None:
 
 
 def register_channel(bot_token: str, event: MessageEvent):
-    bot_token = bot_token.lstrip().split(' ')
+    bot_token = bot_token.strip().split(' ')
     if len(bot_token) != 1:
         raise BotMessageException('Usage: /register <token>')
 
@@ -91,7 +93,7 @@ def register_channel(bot_token: str, event: MessageEvent):
 
 
 def unregister_channel(bot_token: str, event: MessageEvent):
-    bot_token = bot_token.lstrip().split(' ')
+    bot_token = bot_token.strip().split(' ')
     if len(bot_token) != 1:
         raise BotMessageException('Usage: /unregister <token>')
 
@@ -119,7 +121,7 @@ def unregister_channel(bot_token: str, event: MessageEvent):
 
 
 def track_location(alias: str, event: MessageEvent):
-    alias = alias.lstrip().split(' ')
+    alias = alias.strip().split(' ')
     if len(alias) != 1:
         raise BotMessageException('Usage: /track <alias>')
 
@@ -193,3 +195,7 @@ def push_low_battery_alert(username: str, channel_ids: List[str]):
                 f'{username} has low battery, so he/she might not be able to respond to any messages',
             ),
         )
+
+
+def handle_indirect_mention(whole_text: str):
+    pass
