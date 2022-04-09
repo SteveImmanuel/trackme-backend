@@ -45,7 +45,7 @@ def get_last_location(uid: str) -> Union[None, Dict]:
     data['longitude'] = redis_repository.hget_key(hash_key, 'longitude')
     data['latitude'] = redis_repository.hget_key(hash_key, 'latitude')
     data['timestamp'] = redis_repository.hget_key(hash_key, 'timestamp')
-    data['battery_level'] = redis_repository.hget_key(hash_key, 'timestamp')
+    data['battery_level'] = int(redis_repository.hget_key(hash_key, 'battery_level'))
     return data
 
 
