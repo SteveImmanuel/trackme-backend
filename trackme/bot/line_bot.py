@@ -8,7 +8,7 @@ import trackme.database.redis as redis_repository
 from trackme.helper.line_bot import *
 from trackme.database.mongo.collections import Users
 from trackme.exceptions.bot_message_exception import BotMessageException
-from trackme.validation.add_connected_account import AddConnectedAccount
+from trackme.validation.add_linked_account import AddLinkedAccount
 from trackme.validation.add_bot_channel import AddBotChannel
 from trackme.helper.location import *
 
@@ -68,7 +68,7 @@ def register_user(bot_token: str, event: MessageEvent):
             'User registration can only be done by sending direct message to bot')
 
     profile_info = get_user_info(api, source.sender_id)
-    update_data = AddConnectedAccount.validate({
+    update_data = AddLinkedAccount.validate({
         'id': source.sender_id,
         'display_name': profile_info.get('display_name'),
         'photo_url': profile_info.get('photo_url'),
@@ -76,7 +76,7 @@ def register_user(bot_token: str, event: MessageEvent):
     })
     result = user_collection.update_one({'_id': ObjectId(uid)}, {
         '$addToSet': {
-            'connected_accounts': update_data,
+            'linked_accounts': update_data,
         },
     })
     if result.get('total_matched') != 1:
@@ -230,6 +230,6 @@ def handle_indirect_mention(whole_text: str, event: MessageEvent):
                 line_account = list(
                     filter(
                         lambda item: item.get('platform') == PLATFORM,
-                        user.connected_accounts,
+                        user.linked_accounts,
                     ))[0]
                 api.push_message(line_account.get('id'), TextSendMessage(text=msg))

@@ -28,7 +28,7 @@ class UpdateUser(BaseValidation):
             }],
             False,
         ),
-        'connected_accounts:': (
+        'linked_accounts:': (
             [{
                 'id': (is_it(str), True),
                 'platform': (is_it(str), True),

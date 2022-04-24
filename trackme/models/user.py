@@ -12,7 +12,7 @@ class User(BaseModel):
         aliases: List[str] = None,
         locations: List[Dict] = None,
         bot_channels: List[Dict] = None,
-        connected_accounts: List[Dict] = None,
+        linked_accounts: List[Dict] = None,
     ):
         self.uid = uid
         self.username = username
@@ -20,7 +20,7 @@ class User(BaseModel):
         self.aliases = aliases
         self.locations = locations
         self.bot_channels = bot_channels
-        self.connected_accounts = connected_accounts
+        self.linked_accounts = linked_accounts
 
     def to_dict(self) -> Dict:
         return {
@@ -29,7 +29,7 @@ class User(BaseModel):
             'aliases': self.aliases,
             'locations': self.locations,
             'bot_channels': self.bot_channels,
-            'connected_accounts': self.connected_accounts,
+            'linked_accounts': self.linked_accounts,
         }
 
     @staticmethod
@@ -41,5 +41,5 @@ class User(BaseModel):
             data.get('aliases', None),
             data.get('locations', None),
             data.get('bot_channels', None),
-            data.get('connected_accounts', None),
+            data.get('linked_accounts', None),
         )
