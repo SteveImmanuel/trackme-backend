@@ -9,7 +9,6 @@ from trackme.database.mongo.collections import Users
 from trackme.exceptions.bot_message_exception import BotMessageException
 from trackme.validation.add_connected_account import AddConnectedAccount
 from trackme.validation.add_bot_channel import AddBotChannel
-from trackme.validation.delete_bot_channel import DeleteBotChannel
 from trackme.helper.location import *
 
 PLATFORM = 'line'
@@ -38,8 +37,6 @@ def echo(event: MessageEvent) -> None:
             register_user(rest_msg, event)
         elif keyword == '/register':
             register_channel(rest_msg, event)
-        elif keyword == '/unregister':
-            unregister_channel(rest_msg, event)
         elif keyword == '/track':
             track_location(rest_msg, event)
         else:
@@ -137,36 +134,6 @@ def register_channel(bot_token: str, event: MessageEvent):
     api.reply_message(
         event.reply_token,
         TextSendMessage(text=f'Registration successful for tracking {user.username}'),
-    )
-
-
-def unregister_channel(bot_token: str, event: MessageEvent):
-    bot_token = bot_token.strip().split(' ')
-    if len(bot_token) != 1:
-        raise BotMessageException('Usage: /unregister <token>')
-
-    bot_token = bot_token[0]
-    uid = redis_repository.get_key(f'channel_token_{bot_token}')
-    if uid is None:
-        raise BotMessageException(
-            'Token expired or not found. Please re-generate the token from the app')
-
-    source = cast(Source, event.source)
-    delete_data = DeleteBotChannel.validate({'id': source.sender_id})
-
-    result = user_collection.update_one({'_id': ObjectId(uid)}, {
-        '$pull': {
-            'bot_channels': delete_data,
-        },
-    })
-    if result.get('total_matched') != 1:
-        raise BotMessageException(
-            'There is problem a problem in unregistering channel. Please try again')
-
-    user = user_collection.find_by_id(uid)
-    api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=f'Unregistration successful for user {user.username}'),
     )
 
 
