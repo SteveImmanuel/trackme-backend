@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Callable
 from trackme.exceptions.validation_exception import ValidationException
 
-def is_it(var_type: type) -> None:
-    def wrapper(value: Any):
+def is_it(var_type: type) -> Callable:
+    def wrapper(value: Any) -> None:
         if not isinstance(value, var_type):
             raise ValidationException(f'Value must be a {var_type.__name__}')
     return wrapper
