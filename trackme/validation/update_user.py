@@ -24,6 +24,7 @@ class UpdateUser(BaseValidation):
                 'photo_url': (is_it(str), False),
                 'display_name': (is_it(str), True),
                 'platform': (is_it(str), True),
+                'indirect_mention_notif': (is_it(bool), True),
             }],
             False,
         ),
