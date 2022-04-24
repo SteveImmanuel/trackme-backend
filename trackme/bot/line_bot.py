@@ -86,7 +86,7 @@ def register_user(bot_token: str, event: MessageEvent):
     user = user_collection.find_by_id(uid)
     api.reply_message(
         event.reply_token,
-        TextSendMessage(text=f'Registration successful for connecting {user.username}'),
+        TextSendMessage(text=f'Registration successful for linking account {user.username}'),
     )
 
 
