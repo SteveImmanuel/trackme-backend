@@ -5,6 +5,7 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage, Source, L
 from bson.objectid import ObjectId
 from trackme.contants import *
 import trackme.database.redis as redis_repository
+from trackme.helper.line_bot import *
 from trackme.database.mongo.collections import Users
 from trackme.exceptions.bot_message_exception import BotMessageException
 from trackme.validation.add_connected_account import AddConnectedAccount
@@ -40,10 +41,11 @@ def echo(event: MessageEvent) -> None:
         elif keyword == '/track':
             track_location(rest_msg, event)
         else:
-            handle_indirect_mention(message.text)
+            handle_indirect_mention(message.text, event)
     except BotMessageException as e:
         api.reply_message(event.reply_token, TextSendMessage(text=str(e)))
     except Exception as e:
+        print(e)
         api.reply_message(
             event.reply_token,
             TextSendMessage(text=str('There is trouble with the server. Please try again later')))
@@ -61,18 +63,15 @@ def register_user(bot_token: str, event: MessageEvent):
             'Token expired or not found. Please re-generate the token from the app')
 
     source = cast(Source, event.source)
-    if source.type == 'user':
-        profile_info = api.get_profile(source.sender_id)
-        display_name = profile_info.display_name
-        photo_url = profile_info.picture_url
-    else:
+    if source.type != 'user':
         raise BotMessageException(
             'User registration can only be done by sending direct message to bot')
 
+    profile_info = get_user_info(api, source.sender_id)
     update_data = AddConnectedAccount.validate({
         'id': source.sender_id,
-        'display_name': display_name,
-        'photo_url': photo_url,
+        'display_name': profile_info.get('display_name'),
+        'photo_url': profile_info.get('photo_url'),
         'platform': PLATFORM
     })
     result = user_collection.update_one({'_id': ObjectId(uid)}, {
@@ -104,22 +103,19 @@ def register_channel(bot_token: str, event: MessageEvent):
 
     source = cast(Source, event.source)
     if source.type == 'user':
-        profile_info = api.get_profile(source.sender_id)
-        display_name = profile_info.display_name
-        photo_url = profile_info.picture_url
+        profile_info = get_user_info(api, source.sender_id)
     elif source.type == 'group':
-        profile_info = api.get_group_summary(source.sender_id)
-        display_name = profile_info.group_name
-        photo_url = profile_info.picture_url
+        profile_info = get_group_info(api, source.group_id)
     else:
         raise BotMessageException('This channel is not supported. Bot only supports user or group')
 
     update_data = AddBotChannel.validate({
         'id': source.sender_id,
         'type': source.type.capitalize(),
-        'display_name': display_name,
-        'photo_url': photo_url,
-        'platform': PLATFORM
+        'display_name': profile_info.get('display_name'),
+        'photo_url': profile_info.get('photo_url'),
+        'platform': PLATFORM,
+        'indirect_mention_notif': False
     })
     result = user_collection.update_one({'_id': ObjectId(uid)}, {
         '$addToSet': {
@@ -203,7 +199,6 @@ def push_location_msg(username: str, channel_ids: List[str], location_name: str,
 
 
 def push_low_battery_alert(username: str, channel_ids: List[str]):
-    print(f'{username} has low battery, so he might not be able to respond to any messages')
     for id in channel_ids:
         api.push_message(
             id,
@@ -214,5 +209,27 @@ def push_low_battery_alert(username: str, channel_ids: List[str]):
         )
 
 
-def handle_indirect_mention(whole_text: str):
-    pass
+def handle_indirect_mention(whole_text: str, event: MessageEvent):
+    source = cast(Source, event.source)
+    if source.type != 'group':
+        return
+
+    users = user_collection.find_all({
+        'bot_channels.id': source.sender_id,
+        'bot_channels.indirect_mention_notif': True,
+    })
+
+    if len(users) > 0:
+        sender_name = get_user_info(api, source.user_id).get('display_name')
+        group_name = get_group_info(api, source.group_id).get('display_name')
+        msg = f'{sender_name} mentioned you in {group_name}:\n\n{whole_text}'
+
+        for user in users:
+            possible_aliases = user.aliases + [user.username]
+            if any(alias in whole_text for alias in possible_aliases):
+                line_account = list(
+                    filter(
+                        lambda item: item.get('platform') == PLATFORM,
+                        user.connected_accounts,
+                    ))[0]
+                api.push_message(line_account.get('id'), TextSendMessage(text=msg))
