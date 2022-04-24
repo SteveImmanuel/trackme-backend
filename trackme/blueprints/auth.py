@@ -93,7 +93,7 @@ def register():
     try:
         data = CreateUser.validate(request.json)
         data['password'] = generate_password_hash(data['password'])
-        data['aliases'] = data['locations'] = data['bot_channels'] = []
+        data['aliases'] = data['locations'] = data['bot_channels'] = data['connected_accounts'] = []
         user_collection.create_one(data)
         return make_response(jsonify({'code': 200, 'message': 'Register Successful'}), 200)
     except ValidationException as e:
