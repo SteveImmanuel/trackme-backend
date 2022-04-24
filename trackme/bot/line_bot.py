@@ -1,16 +1,18 @@
-import trackme.database.redis as redis_repository
-
 from flask import Request
 from typing import cast
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, Source, LocationSendMessage
 from bson.objectid import ObjectId
 from trackme.contants import *
+import trackme.database.redis as redis_repository
 from trackme.database.mongo.collections import Users
 from trackme.exceptions.bot_message_exception import BotMessageException
+from trackme.validation.add_connected_account import AddConnectedAccount
 from trackme.validation.add_bot_channel import AddBotChannel
 from trackme.validation.delete_bot_channel import DeleteBotChannel
 from trackme.helper.location import *
+
+PLATFORM = 'line'
 
 # initialize connector
 api = LineBotApi(LINE_BOT_ACCESS_TOKEN)
@@ -32,7 +34,9 @@ def echo(event: MessageEvent) -> None:
         keyword = msg_arr[0]
         rest_msg = ' '.join(msg_arr[1:])
 
-        if keyword == '/register':
+        if keyword == '/me':
+            register_user(rest_msg, event)
+        elif keyword == '/register':
             register_channel(rest_msg, event)
         elif keyword == '/unregister':
             unregister_channel(rest_msg, event)
@@ -48,13 +52,55 @@ def echo(event: MessageEvent) -> None:
             TextSendMessage(text=str('There is trouble with the server. Please try again later')))
 
 
+def register_user(bot_token: str, event: MessageEvent):
+    bot_token = bot_token.strip().split(' ')
+    if len(bot_token) != 1:
+        raise BotMessageException('Usage: /me <token>')
+
+    bot_token = bot_token[0]
+    uid = redis_repository.get_key(f'user_token_{bot_token}')
+    if uid is None:
+        raise BotMessageException(
+            'Token expired or not found. Please re-generate the token from the app')
+
+    source = cast(Source, event.source)
+    if source.type == 'user':
+        profile_info = api.get_profile(source.sender_id)
+        display_name = profile_info.display_name
+        photo_url = profile_info.picture_url
+    else:
+        raise BotMessageException(
+            'User registration can only be done by sending direct message to bot')
+
+    update_data = AddConnectedAccount.validate({
+        'id': source.sender_id,
+        'display_name': display_name,
+        'photo_url': photo_url,
+        'platform': PLATFORM
+    })
+    result = user_collection.update_one({'_id': ObjectId(uid)}, {
+        '$addToSet': {
+            'connected_accounts': update_data,
+        },
+    })
+    if result.get('total_matched') != 1:
+        raise BotMessageException(
+            'There is problem a problem in registering user. Please try again')
+
+    user = user_collection.find_by_id(uid)
+    api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=f'Registration successful for connecting {user.username}'),
+    )
+
+
 def register_channel(bot_token: str, event: MessageEvent):
     bot_token = bot_token.strip().split(' ')
     if len(bot_token) != 1:
         raise BotMessageException('Usage: /register <token>')
 
     bot_token = bot_token[0]
-    uid = redis_repository.get_key(f'bot_token_{bot_token}')
+    uid = redis_repository.get_key(f'channel_token_{bot_token}')
     if uid is None:
         raise BotMessageException(
             'Token expired or not found. Please re-generate the token from the app')
@@ -76,7 +122,7 @@ def register_channel(bot_token: str, event: MessageEvent):
         'type': source.type.capitalize(),
         'display_name': display_name,
         'photo_url': photo_url,
-        'platform': 'line'
+        'platform': PLATFORM
     })
     result = user_collection.update_one({'_id': ObjectId(uid)}, {
         '$addToSet': {
@@ -88,8 +134,10 @@ def register_channel(bot_token: str, event: MessageEvent):
             'There is problem a problem in registering channel. Please try again')
 
     user = user_collection.find_by_id(uid)
-    api.reply_message(event.reply_token,
-                      TextSendMessage(text=f'Registration successful for tracking {user.username}'))
+    api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=f'Registration successful for tracking {user.username}'),
+    )
 
 
 def unregister_channel(bot_token: str, event: MessageEvent):
@@ -98,7 +146,7 @@ def unregister_channel(bot_token: str, event: MessageEvent):
         raise BotMessageException('Usage: /unregister <token>')
 
     bot_token = bot_token[0]
-    uid = redis_repository.get_key(f'bot_token_{bot_token}')
+    uid = redis_repository.get_key(f'channel_token_{bot_token}')
     if uid is None:
         raise BotMessageException(
             'Token expired or not found. Please re-generate the token from the app')
@@ -116,8 +164,10 @@ def unregister_channel(bot_token: str, event: MessageEvent):
             'There is problem a problem in unregistering channel. Please try again')
 
     user = user_collection.find_by_id(uid)
-    api.reply_message(event.reply_token,
-                      TextSendMessage(text=f'Unregistration successful for user {user.username}'))
+    api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=f'Unregistration successful for user {user.username}'),
+    )
 
 
 def track_location(alias: str, event: MessageEvent):
