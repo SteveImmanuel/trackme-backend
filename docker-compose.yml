@@ -21,6 +21,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
     ports:
       - 27017:27017
+    volumes:
+      - db-mongo:/data/db
 
   redis:
     image: redis
@@ -41,3 +43,9 @@ services:
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: $INFLUX_TOKEN
     ports:
       - 8086:8086
+    volumes:
+      - db-influx:/var/lib/influxdb2
+
+volumes:
+  db-mongo:
+  db-influx:
