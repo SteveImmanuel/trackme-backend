@@ -22,12 +22,20 @@ def get_group_info(api: LineBotApi, group_id: str) -> Dict:
     result = {}
 
     if not redis_repository.is_key_exist(hash_key):
-        info = api.get_group_summary(group_id)
-        result = {
-            'display_name': info.group_name,
-            'photo_url': info.picture_url,
-        }
-        set_info_cache(hash_key, result)
+        try:
+            info = api.get_group_summary(group_id)
+            result = {
+                'display_name': info.group_name,
+                'photo_url': info.picture_url,
+            }
+            set_info_cache(hash_key, result)
+            return result
+        except:
+            result = {
+                'display_name': 'Group',
+                'photo_url': '',
+            }
+
         return result
 
     return get_info_cache(hash_key)
@@ -38,12 +46,42 @@ def get_user_info(api: LineBotApi, user_id: str) -> Dict:
     result = {}
 
     if not redis_repository.is_key_exist(hash_key):
-        info = api.get_profile(user_id)
-        result = {
-            'display_name': info.display_name,
-            'photo_url': info.picture_url,
-        }
-        set_info_cache(hash_key, result)
+        try:
+            info = api.get_profile(user_id)
+            result = {
+                'display_name': info.display_name,
+                'photo_url': info.picture_url,
+            }
+            set_info_cache(hash_key, result)
+        except:
+            result = {
+                'display_name': 'Someone',
+                'photo_url': '',
+            }
+
+        return result
+
+    return get_info_cache(hash_key)
+
+
+def get_group_member_info(api: LineBotApi, group_id: str, user_id: str) -> Dict:
+    hash_key = 'user_info_' + user_id
+    result = {}
+
+    if not redis_repository.is_key_exist(hash_key):
+        try:
+            info = api.get_group_member_profile(group_id, user_id)
+            result = {
+                'display_name': info.display_name,
+                'photo_url': info.picture_url,
+            }
+            set_info_cache(hash_key, result)
+        except:
+            result = {
+                'display_name': 'Someone',
+                'photo_url': '',
+            }
+
         return result
 
     return get_info_cache(hash_key)
