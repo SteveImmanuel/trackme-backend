@@ -220,7 +220,11 @@ def handle_indirect_mention(whole_text: str, event: MessageEvent):
     })
 
     if len(users) > 0:
-        sender_name = get_user_info(api, source.user_id).get('display_name')
+        sender_name = get_group_member_info(
+            api,
+            source.group_id,
+            source.user_id,
+        ).get('display_name')
         group_name = get_group_info(api, source.group_id).get('display_name')
         msg = f'{sender_name} mentioned you in {group_name}:\n\n{whole_text}'
 
@@ -231,5 +235,7 @@ def handle_indirect_mention(whole_text: str, event: MessageEvent):
                     filter(
                         lambda item: item.get('platform') == PLATFORM,
                         user.linked_accounts,
-                    ))[0]
-                api.push_message(line_account.get('id'), TextSendMessage(text=msg))
+                    ))
+
+                if len(line_account) == 1:
+                    api.push_message(line_account[0].get('id'), TextSendMessage(text=msg))
