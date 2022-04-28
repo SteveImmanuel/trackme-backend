@@ -230,7 +230,7 @@ def handle_indirect_mention(whole_text: str, event: MessageEvent):
 
         for user in users:
             possible_aliases = user.aliases + [user.username]
-            if any(alias in whole_text for alias in possible_aliases):
+            if any(alias in whole_text.split(' ') for alias in possible_aliases):
                 line_account = list(
                     filter(
                         lambda item: item.get('platform') == PLATFORM,
