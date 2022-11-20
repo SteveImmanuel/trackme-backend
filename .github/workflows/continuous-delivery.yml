@@ -46,19 +46,19 @@ jobs:
           chmod 400 key.pem
 
       - name: Create app directory
-        run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "mkdir -p trackme"
+        run: ssh -o "StrictHostKeyChecking=no" -i key.pem {{ secrets.VM_USERNAME }}@${{ secrets.VM_IP }} "mkdir -p trackme"
 
       - name: Copy docker compose configuration
-        run: scp -o "StrictHostKeyChecking=no" -i key.pem docker-compose.yml root@${{ secrets.VM_IP }}:~/trackme
+        run: scp -o "StrictHostKeyChecking=no" -i key.pem docker-compose.yml {{ secrets.VM_USERNAME }}@${{ secrets.VM_IP }}:~/trackme
 
       - name: Stop running containers
-        run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme down"
+        run: ssh -o "StrictHostKeyChecking=no" -i key.pem {{ secrets.VM_USERNAME }}@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme down"
 
       - name: Pull latest image
-        run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "docker pull steveimm/trackme:latest"
+        run: ssh -o "StrictHostKeyChecking=no" -i key.pem {{ secrets.VM_USERNAME }}@${{ secrets.VM_IP }} "docker pull steveimm/trackme:latest"
 
       - name: Start containers with latest update
-        run: ssh -o "StrictHostKeyChecking=no" -i key.pem root@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme up -d"
+        run: ssh -o "StrictHostKeyChecking=no" -i key.pem {{ secrets.VM_USERNAME }}@${{ secrets.VM_IP }} "cd trackme && docker-compose -p trackme up -d"
 
       - name: Clean up SSH key
         run: rm key.pem
