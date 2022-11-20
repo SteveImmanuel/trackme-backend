@@ -1,3 +1,5 @@
+import re
+from string import punctuation
 from flask import Request
 from typing import cast
 from linebot import LineBotApi, WebhookHandler
@@ -220,6 +222,7 @@ def handle_indirect_mention(whole_text: str, event: MessageEvent):
     })
 
     if len(users) > 0:
+        pattern = rf'[{punctuation}]'
         sender_name = get_group_member_info(
             api,
             source.group_id,
@@ -230,6 +233,7 @@ def handle_indirect_mention(whole_text: str, event: MessageEvent):
 
         for user in users:
             possible_aliases = user.aliases + [user.username]
+            whole_text = re.sub(pattern, ' ', whole_text)
             if any(alias in whole_text.split(' ') for alias in possible_aliases):
                 line_account = list(
                     filter(
