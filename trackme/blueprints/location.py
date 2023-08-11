@@ -1,6 +1,6 @@
 import pytz
 import trackme.bot.line_bot as LineBot
-
+import traceback
 from datetime import datetime
 from flask import Blueprint, jsonify, make_response, g, request
 from trackme.blueprints.auth import login_required
@@ -75,7 +75,7 @@ def post():
             user.locations,
         )
 
-        channel_ids = map(lambda x: x.get('id'), user.bot_channels)
+        channel_ids = list(map(lambda x: x.get('id'), user.bot_channels))
 
         if location_before != location_now:
             if location_before is not None and location_before.get('alert_on_leave'):
@@ -115,6 +115,7 @@ def post():
             'detail': str(e)
         }), 400)
     except Exception as e:
+        traceback.print_exc()
         return make_response(
             jsonify({
                 'code': 500,
