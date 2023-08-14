@@ -5,8 +5,9 @@ from typing import cast
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, Source, LocationSendMessage
 from bson.objectid import ObjectId
-from trackme.constants import *
 import trackme.database.redis as redis_repository
+import trackme.ai.gpt as TrackmeAI
+from trackme.constants import *
 from trackme.helper.line_bot import *
 from trackme.database.mongo.collections import Users
 from trackme.exceptions.bot_message_exception import BotMessageException
@@ -43,7 +44,7 @@ def echo(event: MessageEvent) -> None:
         elif keyword == '/track':
             track_location(rest_msg, event)
         else:
-            handle_indirect_mention(message.text, event)
+            handle_conversation(message.text, event)
     except BotMessageException as e:
         api.reply_message(event.reply_token, TextSendMessage(text=str(e)))
     except Exception as e:
@@ -243,3 +244,15 @@ def handle_indirect_mention(whole_text: str, event: MessageEvent):
 
                 if len(line_account) == 1:
                     api.push_message(line_account[0].get('id'), TextSendMessage(text=msg))
+
+
+def handle_conversation(whole_text: str, event: MessageEvent):
+    if OPEN_API_ENABLED:
+        parsed = TrackmeAI.extract_intent(whole_text)
+        if parsed is not None and parsed[0] == TrackmeAI.LOCATION_INTENT:
+            try:
+                track_location(parsed[1], event)
+            except:
+                pass
+
+    handle_indirect_mention(whole_text, event)
