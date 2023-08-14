@@ -2,7 +2,7 @@ import sentry_sdk
 import os
 import trackme.blueprints as blueprints
 from flask import Flask
-from trackme.contants import SENTRY_DSN
+from trackme.constants import SENTRY_DSN
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 if SENTRY_DSN and os.getenv('FLASK_ENV') != 'development':

@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from pymongo import MongoClient
-from trackme.contants import *
+from trackme.constants import *
 import trackme.database.mongo.collections as db_collections
 
 # initialize connection

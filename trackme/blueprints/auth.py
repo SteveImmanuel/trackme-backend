@@ -10,7 +10,7 @@ from trackme.helper.token import *
 from trackme.validation import *
 from trackme.database.mongo.collections import Users, RefreshTokens
 from trackme.exceptions.validation_exception import ValidationException
-from trackme.contants import *
+from trackme.constants import *
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 user_collection = Users()

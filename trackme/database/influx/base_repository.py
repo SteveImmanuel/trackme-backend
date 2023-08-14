@@ -1,7 +1,7 @@
 import trackme.database.influx as influx_db
 from typing import Dict, Union, Generator, Any
 from influxdb_client.client.flux_table import FluxRecord
-from trackme.contants import *
+from trackme.constants import *
 
 
 class BaseRepository:

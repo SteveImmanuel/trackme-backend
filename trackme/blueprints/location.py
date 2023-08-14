@@ -8,7 +8,7 @@ from trackme.database.influx.location_repository import LocationRepository
 from trackme.database.mongo.collections import Users
 from trackme.validation.post_location import PostLocation
 from trackme.exceptions.validation_exception import ValidationException
-from trackme.contants import *
+from trackme.constants import *
 from trackme.helper.location import *
 
 bp = Blueprint('location', __name__, url_prefix='/location')

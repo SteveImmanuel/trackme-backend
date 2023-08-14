@@ -1,6 +1,6 @@
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import ASYNCHRONOUS
-from trackme.contants import *
+from trackme.constants import *
 
 # initialize connection
 client = InfluxDBClient(url=f'http://{INFLUX_HOST}:{INFLUX_PORT}',

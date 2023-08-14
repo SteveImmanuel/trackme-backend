@@ -4,7 +4,7 @@ import pytz
 from typing import Dict, Union, List
 import trackme.database.redis as redis_repository
 from trackme.database.influx.location_repository import LocationRepository
-from trackme.contants import TIMEZONE, THRESHOLD_DISTANCE
+from trackme.constants import TIMEZONE, THRESHOLD_DISTANCE
 
 location_repo = LocationRepository()
 EARTH_RADIUS = 6378137  # in m

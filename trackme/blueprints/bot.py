@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, make_response, request, g
 from linebot.exceptions import InvalidSignatureError
 from trackme.blueprints.auth import login_required
 from trackme.helper.token import generate_random_numeric_token
-from trackme.contants import *
+from trackme.constants import *
 
 bp = Blueprint('bot', __name__, url_prefix='/bot')
 

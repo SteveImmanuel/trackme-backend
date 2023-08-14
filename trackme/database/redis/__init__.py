@@ -1,6 +1,6 @@
 import redis
 from typing import Union
-from trackme.contants import *
+from trackme.constants import *
 
 # initialize connection
 client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0)

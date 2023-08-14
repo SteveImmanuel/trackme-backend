@@ -5,7 +5,7 @@ from typing import cast
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, Source, LocationSendMessage
 from bson.objectid import ObjectId
-from trackme.contants import *
+from trackme.constants import *
 import trackme.database.redis as redis_repository
 from trackme.helper.line_bot import *
 from trackme.database.mongo.collections import Users
