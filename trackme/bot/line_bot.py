@@ -136,7 +136,7 @@ def register_channel(bot_token: str, event: MessageEvent):
     )
 
 
-def track_location(alias: str, event: MessageEvent):
+def track_location(alias: str, event: MessageEvent, override_alias: bool = False):
     alias = alias.strip().split(' ')
     if len(alias) != 1:
         raise BotMessageException('Usage: /track <alias>')
@@ -176,7 +176,10 @@ def track_location(alias: str, event: MessageEvent):
         user.locations,
     )
 
-    msg = f'{alias}\'s last known location'
+    if override_alias:
+        alias = user.username
+
+    msg = f'{alias}\'s last location'
     if closest_location is not None:
         location_name = closest_location.get('name')
         msg = f'{alias} is at {location_name}'
@@ -251,7 +254,7 @@ def handle_conversation(whole_text: str, event: MessageEvent):
         parsed = TrackmeAI.extract_intent(whole_text)
         if parsed is not None and parsed[0] == TrackmeAI.LOCATION_INTENT:
             try:
-                track_location(parsed[1], event)
+                track_location(parsed[1], event, override_alias=True)
             except:
                 pass
 
