@@ -253,9 +253,10 @@ def handle_conversation(whole_text: str, event: MessageEvent):
     if OPEN_API_ENABLED:
         parsed = TrackmeAI.extract_intent(whole_text)
         if parsed is not None and parsed[0] == TrackmeAI.LOCATION_INTENT:
-            try:
-                track_location(parsed[1], event, override_alias=True)
-            except:
-                pass
+            for i in range(1, len(parsed)):
+                try:
+                    track_location(parsed[i], event, override_alias=True)
+                except:
+                    pass
 
     handle_indirect_mention(whole_text, event)
