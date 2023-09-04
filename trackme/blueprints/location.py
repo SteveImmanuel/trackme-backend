@@ -64,11 +64,13 @@ def post():
                 }), 404)
 
         last_location = get_last_location(g.get('uid'))
-        location_before = get_closest_highlight_location(
-            last_location.get('latitude'),
-            last_location.get('longitude'),
-            user.locations,
-        )
+        location_before = None
+        if last_location is not None:
+            location_before = get_closest_highlight_location(
+                last_location.get('latitude'),
+                last_location.get('longitude'),
+                user.locations,
+            )
         location_now = get_closest_highlight_location(
             data.get('latitude'),
             data.get('longitude'),
